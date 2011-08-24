@@ -16,24 +16,24 @@ def update(player, font):
     teleportTitle = font.render('Teles: ', True, DARKFLOOR)
     keyTitle = font.render('Keys: ', True, DARKFLOOR)
     
-    windowSurface.blit(levelTitle, (862, 10))
+    windowSurface.blit(levelTitle, (20, 420))
 
-    windowSurface.blit(scoreTitle, (785, 30))
-    windowSurface.blit(score, (845, 30))
+    windowSurface.blit(scoreTitle, (20, 440))
+    windowSurface.blit(score, (80, 440))
     
-    windowSurface.blit(whipTitle, (785, 50))
-    windowSurface.blit(whips, (845, 50))
+    windowSurface.blit(whipTitle, (20, 460))
+    windowSurface.blit(whips, (80, 460))
     
-    windowSurface.blit(gemTitle, (785, 70))
-    windowSurface.blit(gems, (845, 70))
+    windowSurface.blit(gemTitle, (20, 480))
+    windowSurface.blit(gems, (80, 480))
     
-    windowSurface.blit(teleportTitle, (785, 90))
-    windowSurface.blit(teleports, (845, 90))
+    windowSurface.blit(teleportTitle, (20, 500))
+    windowSurface.blit(teleports, (80, 500))
     
-    windowSurface.blit(keyTitle, (785, 110))
-    windowSurface.blit(keys, (845, 110))
+    windowSurface.blit(keyTitle, (20, 520))
+    windowSurface.blit(keys, (80, 520))
     
+
+    pygame.draw.rect(windowSurface, DARKWALL, (10, 410 ,1038, 200), 6)
+    pygame.draw.rect(windowSurface, DARKWALL, (140, 410, 910, 200), 6)
     
-    pygame.draw.rect(windowSurface, DARKWALL, (782, 5 ,225, 763), 6)
-    
-    messages = []
