@@ -33,19 +33,44 @@ class Whip(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load('whip_anim.bmp').convert()
         self.image.set_colorkey(self.image.get_at((0,0)))
-        #self.x = 0
-        #self.y = 0
         self.rect = self.image.get_rect()
-        self.rect.top = 0
-        self.rect.left = 0
         
     def draw(self, surface):
         surface.blit(self.image, self.rect)   
     
-    def update(self, x, y,  degree = 0):
-        self.image = pygame.transform.rotate(self.image, degree)
-        self.rect.top = x
-        self.rect.left = y
+    def update(self, new_position,  frame = 1):
+        #self.image = pygame.transform.rotate(self.image, degree)
+        if frame == 1:
+            self.image = pygame.image.load('whip_anim_1.bmp').convert()
+            self.image.set_colorkey(self.image.get_at((0,0)))
+        if frame == 2:
+            self.image = pygame.image.load('whip_anim_2.bmp').convert()
+            self.image.set_colorkey(self.image.get_at((0,0)))
+        if frame == 3:
+            self.image = pygame.image.load('whip_anim_3.bmp').convert()
+            self.image.set_colorkey(self.image.get_at((0,0)))
+        if frame == 4:
+            self.image = pygame.image.load('whip_anim_4.bmp').convert()
+            self.image.set_colorkey(self.image.get_at((1,0)))
+        self.rect = new_position
+        
+    def checkCollision(self, level_map):
+        if self.rect.collidelist(level_map.breakable) == -1:
+            pass
+        else:
+            for item in level_map.breakable:
+                if item == self.rect:
+                    chance = random.randint(0,3)
+                    if chance == 0:
+                        level_map.breakable.remove(item)
+        
+        if self.rect.collidelist(level_map.mobs) == -1:
+            pass
+        else:
+            for mob in level_map.mobs:
+                if mob.rect == self.rect:
+                    level_map.mobs.remove(mob)
+                
         
         
 #------------------------------------------------------------------------------------    
@@ -103,6 +128,13 @@ class Mob(Object):
         if newPosition.collidelist(levelMap.walls) == -1: #check to see if colliding with walls -1 is False    
             if newPosition.collidelistall(levelMap.doors):
                 self.rect = oldPosition
+            elif newPosition.collidelistall(levelMap.mobs):
+                self.rect = oldPosition
+            elif newPosition.collidelistall(levelMap.breakable):
+                for wall in levelMap.breakable:
+                    if wall.rect == newPosition:
+                        levelMap.breakable.remove(wall)
+                        levelMap.mobs.remove(self)
             else:    
                 self.rect = newPosition
                 
@@ -127,16 +159,13 @@ class Player(Object):
         self.score = 0
         self.weapon = Whip()
         self.whipping = False
+        self.whip_frame = 1
     
     def teleport(self, levelMap):
         random_space = random.randint(1, len(levelMap.floors))
-        
+        random_space = levelMap.floors.pop(random_space)
         print(random_space)
-        self.rect = levelMap.floors(random_space).rect
-        #dx = levelMap.floors[random_space].left
-        #dy = levelMap.floors[random_space].top
-        #self.move(dx,dy, levelMap)
-        #self.move(dx, dy, levelMap)
+        self.rect = random_space
     
     def move(self, dx, dy, levelMap):
         ''' add collision detection if player hits mob, 
@@ -150,9 +179,9 @@ class Player(Object):
                 for item in levelMap.items: #iterate through items and remove them from the map and the list
                     if item.rect == newPosition:
                         levelMap.items.remove(item)
-                        #item.clear()
                         if item.kind == 'gem' and self.gems < self.maxGems:
                             self.gems += 1
+                            levelMap.panel.messages.append('You pick up a gem. Points and Life!')
                         if item.kind == 'whip':
                             self.whips += 1
                         if item.kind == 'gold':
@@ -161,9 +190,14 @@ class Player(Object):
                             self.teleports +=1
                         if item.kind == 'key':
                             self.keys +=1
+                        if item.kind == 'chest':
+                            gem = random.randint(0,3)
+                            whip = random.randint(0,3)
+                            self.gems += gem
+                            self.whips += whip
+                            
                 
             if newPosition.collidelistall(levelMap.doors):
-                
                 for item in levelMap.doors:
                     if item.rect == newPosition:
                         if self.keys > 0:
@@ -171,83 +205,110 @@ class Player(Object):
                             levelMap.doors.remove(item)
                         else:
                             newPosition = oldPosition
-            '''if newPosition.collidelist(levelMap.doors) == -1:
-                pass
-            else:
-                for doors in levelMap.doors:
-                    if doors.rect == newPosition and self.keys > 0:
-                        self.keys -= 1
-                        levelMap.doors.remove(doors)
-                    else:
-                        newPosition = oldPosition'''
-        
+                            
+            if newPosition.collidelistall(levelMap.mobs):
+                for mob in levelMap.mobs:
+                    if mob.rect == newPosition:
+                        self.gems -= 1
+                        levelMap.mobs.remove(mob)
+                        
+            
+            if newPosition.collidelistall(levelMap.breakable):
+                for wall in levelMap.breakable:
+                    if wall.rect == newPosition:
+                        newPosition = oldPosition
+                        
+            if newPosition.collidelistall(levelMap.hidden_walls):
+                for wall in levelMap.hidden_walls:
+                    if wall == newPosition:
+                        newPosition = oldPosition
+                        levelMap.walls.append(wall)
+                
+            if newPosition.collidelistall(levelMap.exits):
+                for level_exit in levelMap.exits:
+                    if level_exit == newPosition:
+                        levelMap.level += 1
+                        levelMap.clearLevel()
+                        levelMap.makeMap(self)
+                        
+                        #testMap = RLmap.Map(level, self)
+                        
             self.rect = newPosition
         else:
             self.rect = oldPosition
         
-    def whip(self, surface):
+    def whip(self, surface, testMap):
+        if self.whip_frame >= 8:
+            whip_frame = 1
         
         if self.whips > 0:
-            x = self.rect.top -16
-            y = self.rect.left
-            self.weapon.update(x,y)
-            self.weapon.draw(surface)
-            '''endX,endY = rect.midtop
-            pygame.draw.line(surface, (255,255,255), rect.midtop, (endX, endY - IMGSIZE), 2)
-            pygame.display.update()
-            pygame.time.delay(20)'''
             
-            x = self.rect.top
-            y = self.rect.left - 16
-            self.weapon.update(x,y, 45)
-            self.weapon.draw(surface)
-            '''
-            pygame.draw.line(surface, (71,108,108), rect.midtop, (endX, endY - IMGSIZE), 2)
-            #surface.blit(images['floor'], (endX, endY - IMGSIZE))
-            endX,endY = rect.topleft
-            pygame.draw.line(surface, (255,255,255), rect.topleft, (endX - IMGSIZE, endY - IMGSIZE), 2)
-            pygame.display.update()
-            pygame.time.delay(20)
+            if self.whip_frame == 1:
+                new_position = self.rect.move(0, -IMGSIZE)
+                self.weapon.update(new_position, 1)
+                self.weapon.draw(surface)
+                self.weapon.checkCollision(testMap)
+                self.whip_frame += 1
+                return
             
-            #surface.blit(images['floor'], (endX - IMGSIZE, endY - IMGSIZE ))
-            endX,endY = rect.midleft
-            pygame.draw.line(surface, (255,255,255), rect.midleft, (endX - IMGSIZE, endY), 2)
-            pygame.display.update()
-            pygame.time.delay(20)
+            if self.whip_frame == 2:
+                new_position = self.rect.move(-IMGSIZE, -IMGSIZE)
+                self.weapon.update(new_position, 2)
+                self.weapon.draw(surface)
+                self.weapon.checkCollision(testMap)
+                self.whip_frame += 1
+                return
+         
+            if self.whip_frame == 3:
+                new_position = self.rect.move(-IMGSIZE, 0)
+                self.weapon.update(new_position, 3)
+                self.weapon.draw(surface)
+                self.weapon.checkCollision(testMap)
+                self.whip_frame += 1
+                return
             
-            #surface.blit(images['floor'], (endX - IMGSIZE, endY))
-            endX,endY = rect.bottomleft
-            pygame.draw.line(surface, (255,255,255), rect.bottomleft, (endX - IMGSIZE, endY + IMGSIZE), 2)
-            pygame.display.update()
-            pygame.time.delay(20)
+            if self.whip_frame == 4:
+                new_position = self.rect.move(-IMGSIZE, IMGSIZE)
+                self.weapon.update(new_position, 4)
+                self.weapon.draw(surface)
+                self.weapon.checkCollision(testMap)
+                self.whip_frame += 1
+                return
             
-            #surface.blit(images['floor'], (endX - IMGSIZE, endY + IMGSIZE))
-            endX,endY = rect.midbottom
-            pygame.draw.line(surface, (255,255,255), rect.midbottom, (endX, endY + IMGSIZE), 2)
-            pygame.display.update()
-            pygame.time.delay(20)
+            if self.whip_frame == 5:
+                new_position = self.rect.move(0, IMGSIZE)
+                self.weapon.update(new_position, 1)
+                self.weapon.draw(surface)
+                self.weapon.checkCollision(testMap)
+                self.whip_frame += 1
+                return
             
-            #surface.blit(images['floor'], (endX, endY + IMGSIZE))
-            endX,endY = rect.bottomright
-            pygame.draw.line(surface, (255,255,255), rect.bottomright, (endX + IMGSIZE, endY + IMGSIZE), 2)
-            pygame.display.update()
-            pygame.time.delay(20)
+            if self.whip_frame == 6:
+                new_position = self.rect.move(IMGSIZE, IMGSIZE)
+                self.weapon.update(new_position, 2)
+                self.weapon.draw(surface)
+                self.weapon.checkCollision(testMap)
+                self.whip_frame += 1
+                return
             
-            #surface.blit(images['floor'], (endX + IMGSIZE, endY + IMGSIZE))
-            endX,endY = rect.midright
-            pygame.draw.line(surface, (255,255,255), rect.midright, (endX + IMGSIZE, endY), 2)
-            pygame.display.update()
-            pygame.time.delay(20)
-            
-            #surface.blit(images['floor'], (endX + IMGSIZE, endY))
-            endX,endY = rect.topright
-            pygame.draw.line(surface, (255,255,255), rect.topright, (endX + IMGSIZE, endY - IMGSIZE), 2)
-            pygame.display.update()
-            pygame.time.delay(20)
-            
-            #surface.blit(images['floor'], (endX + IMGSIZE, endY - IMGSIZE))'''
-            self.whips -= 1
-            self.whipping = False
+            if self.whip_frame == 7:
+                new_position = self.rect.move(IMGSIZE, 0)
+                self.weapon.update(new_position, 3)
+                self.weapon.draw(surface)
+                self.weapon.checkCollision(testMap)
+                self.whip_frame += 1
+                return
+                
+            if self.whip_frame == 8:
+                new_position = self.rect.move(IMGSIZE, -IMGSIZE)
+                self.weapon.update(new_position, 4)
+                self.weapon.draw(surface)
+                self.weapon.checkCollision(testMap)
+                self.whip_frame = 1
+                self.whips -= 1
+                self.whipping = False
+                return
+           
         else:
             pass
             

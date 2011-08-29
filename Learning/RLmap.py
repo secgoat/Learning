@@ -2,7 +2,7 @@
 from RLCONSTANTS import *
 import RLobject
 import RLpanel
-from RLlevels import *
+import RLlevels
 #import pygame
 #from pygame.locals import *
 #import random
@@ -12,7 +12,6 @@ map_width = 0
 map_height = 0
 
 #view port size, what part of the map is shown on the screen at any given time.
-
 
 class Tile():
     def __init__(self, rect, explored = False):
@@ -25,80 +24,92 @@ class Tile():
         return gameMap      
     
 class Map:
-    def __init__(self):
-        self.level = 1
+    def __init__(self, level, player):
+        self.level = level
         self.level_map = []
+        self.panel = RLpanel.Panel()
         self.floors = []
+        self.exits = []
         self.walls = []
+        self.hidden_walls = []
+        self.breakable = []
         self.doors = []
         self.items = []
         self.mobs = []
         self.images = {}
-        self.makeMap()
+        self.makeMap(player)
         #self.populateLevel()
          
-         
-    def makeMap(self):
-        self.level_map = [
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,0,20,0,0,0,0,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,0,0,0,0,0,20,0,0,0,0,40,0,0,0,0,20,0,0,0,0,40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,1],
-  [1,0,40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,0,0,0,40,0,0,0,20,0,0,0,40,0,0,0,1],
-  [1,0,0,0,0,0,0,0,1,1,1,1,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1],
-  [1,0,0,0,0,0,0,0,1,1,44,42,44,42,44,1,1,0,0,0,0,0,0,0,20,0,0,0,0,0,0,0,40,0,0,20,0,1,1,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,1,1,20,0,1],
-  [1,0,0,0,0,40,0,0,1,1,42,44,42,44,42,1,1,0,40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1],
-  [1,0,0,20,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,40,0,0,0,0,0,0,0,0,0,0,1,1,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,2,2,1,1,0,40,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,0,0,0,0,0,0,0,0,0,0,0,20,0,0,0,1,1,8,8,8,8,8,8,8,8,8,8,8,8,8,0,43,1,1,1,0,0,2,58,1,1,0,0,1],
-  [1,0,0,0,0,0,0,0,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,2,2,1,1,40,0,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,1,1,0,0,1,0,0,1],
-  [1,1,1,1,1,1,0,20,0,0,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,20,0,0,0,0,0,0,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,41,1,1,20,0,0,0,1,1,0,20,1],
-  [1,45,1,1,1,1,0,0,0,0,0,0,0,18,3,3,3,3,3,0,0,0,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,41,1,1,0,0,0,20,1,1,0,0,1],
-  [1,1,0,1,1,1,0,0,0,0,0,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,41,1,1,20,0,0,0,1,1,0,40,1],
-  [1,1,1,0,1,1,0,20,0,0,0,0,0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,0,0,0,0,0,0,0,0,0,0,20,0,0,40,1,1,41,1,1,0,20,0,0,1,1,0,0,1],
-  [1,1,0,1,1,1,0,0,0,0,0,0,40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,0,0,0,0,0,0,0,1,1,41,1,1,0,0,0,20,1,1,40,0,1],
-  [1,1,0,1,1,1,0,0,0,0,20,0,0,0,0,0,0,0,0,0,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,0,0,1,1,41,1,1,20,0,0,0,1,1,0,0,1],
-  [1,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,4,1,1,0,0,0,0,0,40,0,0,1,1,41,1,1,0,0,20,0,1,1,20,0,1],
-  [1,2,2,2,1,1,0,0,40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,0,0,0,0,0,0,0,0,0,20,0,1,1,0,0,0,0,0,1,1,20,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,1,1,0,0,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,0,0,0,0,40,0,1,1,0,0,1,1,1,1,1,1,1,0,0,0,0,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,20,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,0,20,1,1,0,0,0,0,0,0,20,0,0,0,40,0,0,20,0,18,0,19,19,1],
-  [1,2,2,2,2,2,2,2,1,1,42,0,0,1,1,0,0,0,0,0,0,20,0,0,0,0,1,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,2,2,2,2,2,2,2,1,1,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,20,0,1,1,1,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,41,41,41,41,41,41,41,1,1,43,43,0,0,0,20,0,0,0,1,1,0,0,40,0,0,1,1,20,20,20,20,20,1,1,0,0,0,0,0,0,59,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
-        for a in range(len(self.level_map)):       
+    def clearLevel(self):
+        self.level_map = []
+        self.floors = []
+        self.exits = []
+        self.walls = []
+        self.hidden_walls = []
+        self.breakable = []
+        self.doors = []
+        self.items = []
+        self.mobs = []
+        
+    def makeMap(self, player):
+        f = open('lvl{}.txt'.format(self.level),'r')
+        lines = f.readlines()
+        self.level_map = lines
+        
+        for a in range(len(self.level_map)):
             for b in range(len(self.level_map[a])):
                 y = a * IMGSIZE
                 x = b * IMGSIZE
-                if self.level_map[a][b] == 0:
+                if self.level_map[a][b] == ' ':
                     self.floors.append(pygame.Rect(x,y,IMGSIZE,IMGSIZE))
-                if self.level_map[a][b] >= 1 and self.level_map[a][b] <= 3:  
+                if self.level_map[a][b] == '#' or self.level_map[a][b] == '6' or self.level_map[a][b] == 'R':  
                     self.walls.append(pygame.Rect(x,y,IMGSIZE,IMGSIZE))
-                if self.level_map[a][b] == 4:
+                if self.level_map[a][b] == 'X' or self.level_map[a][b] == 'Y':
+                    breakable_wall = RLobject.Object('breakable.bmp', x, y)
+                    self.breakable.append(breakable_wall)
+                if self.level_map[a][b] == 'D':
                     door = RLobject.Door('door.bmp', x, y)
                     self.doors.append(door)
-                if self.level_map[a][b] == 20:
-                    mob = RLobject.Mob('a.bmp', x , y)
+                
+                if self.level_map[a][b] == 'P':
+                    player.rect.top = a * IMGSIZE
+                    player.rect.left = b * IMGSIZE
+                    
+                if self.level_map[a][b] == ':':
+                    self.hidden_walls.append(pygame.Rect(x,y,IMGSIZE,IMGSIZE))
+                if self.level_map[a][b] == '1':
+                    mob = RLobject.Mob('gnome.bmp', x , y)
                     self.mobs.append(mob)
-                if self.level_map[a][b] == 40:
+                if self.level_map[a][b] == '2':
+                    mob = RLobject.Mob('elf_mummy.bmp', x , y)
+                    self.mobs.append(mob)
+                if self.level_map[a][b] == '3':
+                    mob = RLobject.Mob('ogre_lord.bmp', x , y)
+                    self.mobs.append(mob)
+                if self.level_map[a][b] == '4':
+                    mob = RLobject.Mob('umber_hulk.bmp', x , y)
+                    self.mobs.append(mob)
+                
+                if self.level_map[a][b] == '+':
                     item = RLobject.Object('gem.bmp', x, y, 'gem')
                     self.items.append(item)
-                if self.level_map[a][b] == 41:
+                if self.level_map[a][b] == 'W':
                     item = RLobject.Object('whip.bmp', x , y, 'whip')
                     self.items.append(item)
-                if self.level_map[a][b] == 42:
+                if self.level_map[a][b] == 'T':
                     item = RLobject.Object('teleport.bmp', x , y, 'teleport')
                     self.items.append(item)
-                if self.level_map[a][b] == 43:
+                if self.level_map[a][b] == 'K':
                     item = RLobject.Object('key.bmp', x , y, 'key')
                     self.items.append(item)
-                if self.level_map[a][b] == 44:
+                if self.level_map[a][b] == '*':
                     item = RLobject.Object('gold.bmp', x , y, 'gold')
                     self.items.append(item)
-                if self.level_map[a][b] == 45:
+                if self.level_map[a][b] == 'C':
                     item = RLobject.Object('chest.bmp', x , y, 'chest')
                     self.items.append(item)
-        map_width = b * IMGSIZE
-        map_height = a * IMGSIZE
+                if self.level_map[a][b] == 'L':
+                    self.exits.append(pygame.Rect(x,y,IMGSIZE,IMGSIZE))
 
     def populateLevel(self): # for randomly generated levels
         item = None
@@ -111,22 +122,19 @@ class Map:
                     item = RLobject.Object('whip.bmp', self.floors[x].top, self.floors[x].left)
                     item.kind = 'whip'
                     num_items += 1
-                    #print(item.kind)
-                    #print(item.rect)
                 elif num == 1:
                     item = RLobject.Object('gem.bmp', self.floors[x].top, self.floors[x].left)
                     item.kind = 'gem'
                     num_items +=1
-                    #print(item.kind)
-                    #print(item.rect)
                 self.items.append(item)
             else:
                 pass
 
 def renderAll(font, surface, testMap, images, player):
-    
     surface.fill((0,0,0))
-    RLpanel.update(player, font)
+    testMap.panel.update(player, font)
+    
+    
     #mapSurface = surface.subsurface((corner_x,0) +(view_width, view_height))
     for a in range(len(testMap.level_map)):
         for b in range(len(testMap.level_map[a])):
@@ -137,23 +145,32 @@ def renderAll(font, surface, testMap, images, player):
             surface.blit(images['floor'], (x,y))
             if testMap.level_map[a][b] == 0:
                 surface.blit(images['floor'], (x, y))
-            elif testMap.level_map[a][b] == 1:
-                surface.blit(images['wall'], (x, y))
-            elif testMap.level_map[a][b] == 2:
-                surface.blit(images['breakable'], (x,y))
-            elif testMap.level_map[a][b] == 3:
+            #elif testMap.level_map[a][b] == '#' or testMap.level_map[a][b] == '6':
+                #surface.blit(images['wall'], (x, y))
+            elif testMap.level_map[a][b] == 'R':
                 surface.blit(images['water'], (x, y))
-            elif testMap.level_map[a][b] == 19:
+            elif testMap.level_map[a][b] == 'L':
                 surface.blit(images['stairs'], (x,y))
             
-    #draw all objects in the list
+            
+    #draw all objects in the lists
+    for wall in testMap.walls:
+        surface.blit(images['wall'], wall)
     for object in testMap.items:
         object.draw(surface)
     for mob in testMap.mobs:
         mob.draw(surface)
     for door in testMap.doors:
         door.draw(surface)
+    for breakable_wall in testMap.breakable:
+        breakable_wall.draw(surface)
     player.draw(surface)
     if player.whipping == True:
-        player.whip(surface)
+        player.whip(surface, testMap)
+        
+    for a in range(len(testMap.level_map)):
+        for b in range(len(testMap.level_map[a])):
+            if testMap.level_map[a][b] == 'R':
+                surface.blit(images['water'], (x, y))
+        
     pygame.display.update() 

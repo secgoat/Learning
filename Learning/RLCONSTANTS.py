@@ -6,6 +6,7 @@ import pygame
 from pygame.locals import *
 
 
+testMap = []
 #Game Window variables 
 WWIDTH = 1056
 WHEIGHT = 616
