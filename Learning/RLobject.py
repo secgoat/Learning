@@ -1,5 +1,5 @@
 import pygame
-import RLmap
+import RLmap, anim
 import math, random
 from RLCONSTANTS import *
 from pygame.locals import *
@@ -124,7 +124,7 @@ class Mob(Object):
             if degree == 270 or (degree < 270 and degree > 248) or (degree > 270 and degree < 293):
                 dx = 0
                 dy = IMGSIZE
-            if degree == 315:
+            if degree == 315 or (degree < 315 and degree > 293):
                 dx = -IMGSIZE
                 dy = IMGSIZE
             
@@ -138,23 +138,33 @@ class Mob(Object):
                 self.rect = oldPosition
             elif newPosition.collidelistall(levelMap.breakable):
                 for wall in levelMap.breakable:
-                    if wall.rect == newPosition:
+                    if wall.rect == newPosition  and (self.kind != 'mob tile'):
                         levelMap.breakable.remove(wall)
                         levelMap.mobs.remove(self)
             else:    
                 self.rect = newPosition
                 
             if self.rect.colliderect(player.rect) == True:
-                levelMap.mobs.remove(self)
-                player.gems -= 1
-            if self.rect.collidelistall(levelMap.items):
+                if self.kind != 'mob tile':
+                    levelMap.mobs.remove(self)
+                    player.gems -= 1
+                else:
+                    self.rect = oldPosition
+                    return
+            if self.rect.collidelistall(levelMap.items) and (self.kind != 'mob tile'):
                 for item in levelMap.items:
                     if item.rect == newPosition:
                         levelMap.items.remove(item)
         else:
             self.rect = oldPosition    
         
-  
+#--------------------------------------------------------------------------------------
+
+class MobTile(Mob):
+    def __init__(self, image,x,y):
+        Mob.__init__(self, image, x, y)
+        self.moving = False
+        self.kind = 'mob tile'  
 #-----------------------------------------------------------------------------------        
     
 class Player(Object):
@@ -162,7 +172,7 @@ class Player(Object):
     def __init__(self, image, x, y):
         Object.__init__(self, image, x, y)
         self.whips = 5
-        self.gems = 1000
+        self.gems = 20
         self.maxGems = 150
         self.teleports = 0
         self.keys = 0
@@ -171,11 +181,31 @@ class Player(Object):
         self.whipping = False
         self.whip_frame = 1
     
+    def findMovingWalls(self, game):
+        '''
+        need to grab a circle around the player, use 3 blocks (IMGSIZE *3) = pi radius squared
+         grab list of blocks that fall in that circumference.
+         check list against position of moving walls
+         
+         means i need to create a moving wall object with an Activated attribute. If activated
+         it will travel just like a mob toward the player.
+        '''
+        center_x = self.rect.centerx
+        center_y = self.rect.centery
+        radius = IMGSIZE * 4
+        
+        for wall in game.level_map.moveable_walls:
+            x = wall.rect.centerx
+            y = wall.rect.centery
+            if game.isInRange(center_x, center_y, radius, x,y):
+                wall.moving = True
+                
+
     def teleport(self, game):
         levelMap = game.level_map
         random_space = random.randint(1, len(levelMap.floors))
         random_space = levelMap.floors.pop(random_space)
-        print(random_space)
+        #print(random_space)
         self.rect = random_space
     
     def move(self, dx, dy, game):
@@ -216,6 +246,19 @@ class Player(Object):
                         if item.kind == 'whip_ring':
                             self.weapon.power += 1
                             levelMap.panel.messages.append('You find a ring of Whip Power!')
+                        if item.kind == 'gem_sack':
+                            self.gems += 25
+                            levelMap.panel.messages.append('You found a pouch with 25 Gems')
+                        if item.kind == 'bomb':
+                            center_x = item.rect.centerx
+                            center_y = item.rect.centery
+                            radius = IMGSIZE * 5
+                            for wall in game.level_map.breakable:
+                                x = wall.rect.centerx
+                                y = wall.rect.centery
+                                if game.isInRange(center_x, center_y, radius, x,y):
+                                    game.level_map.breakable.remove(wall)
+                                    game.level_map.moveable_walls.remove(wall)
                             
 #--------------------------------------------------------------------------------------------------------------------------------------
             if newPosition.collidelistall(levelMap.triggers): #triggers that set of special events etc
@@ -260,7 +303,7 @@ class Player(Object):
             if newPosition.collidelistall(levelMap.exits): #did they get to the level exit?
                 for level_exit in levelMap.exits:
                     if level_exit == newPosition:
-                        level = levelMap.level + 1
+                        #level = levelMap.level + 1
                         levelMap.level += 1
                         game.level_map.clearLevel()
                         RLmap.renderAll(game.font, game.surface, game.level_map, images, game.player)
@@ -271,8 +314,9 @@ class Player(Object):
                             pass
                         return
             if newPosition.collidelistall(levelMap.pits):
-                pass
-            if newPosition.collidelistall(levelMap.lava): #lava colision
+                anim.pitFall(game)
+                
+            if newPosition.collidelistall(levelMap.lava): #lava collision
                 for lava in levelMap.lava:
                     if lava.rect == newPosition:
                         self.gems -= 10
@@ -284,8 +328,8 @@ class Player(Object):
             self.rect = oldPosition
         
     def whip(self, surface, testMap):
-        if self.whip_frame >= 8:
-            whip_frame = 1
+        #if self.whip_frame >= 8:
+            #whip_frame = 1
         
         if self.whips > 0:
             
