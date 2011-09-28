@@ -22,6 +22,21 @@ WHEIGHT = 616
 #Image Variables
 IMGSIZE = 16
 
+#Timer speeds in milliseconds 0 = off
+OFF = 0
+ETERNITY = 10000
+VERYSLOW = 2000
+SLOW = 1000
+MEDIUM = 750
+FAST = 500
+
+
+slow = USEREVENT+1
+medium = USEREVENT+2
+fast = USEREVENT+3
+lava = USEREVENT+4
+check_things = USEREVENT+5
+
 #Surface
 windowSurface = pygame.display.set_mode((WWIDTH, WHEIGHT), 0, 32)
 

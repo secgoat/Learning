@@ -70,6 +70,9 @@ class Whip(pygame.sprite.Sprite):
                     if chance == 0:
                         level_map.breakable.remove(item)
                         level_map.floors.append(item)
+                        #TODO: remove triggered walls Y 7 8 from triggered wall list as well
+                        if item.rect in level_map.triggered_walls['Y']:
+                            level_map.triggered_walls['Y'].remove(item.rect)
         if self.rect.collidelist(level_map.mobs) == -1:
             pass
         else:
@@ -97,12 +100,12 @@ class Mob(Object):
         dx = 0
         if self.checkDistance(player) <= self.view_range:
             radian = math.atan2(self.rect.centery - player.rect.centery, self.rect.centerx - player.rect.centerx) 
-             # radian shows the angle between mob and player. then need to turn it into degrees and make it a positive degree so my brain can comprehend easier.
+            # radian shows the angle between mob and player. then need to turn it into degrees and make it a positive degree so my brain can comprehend easier.
             degree = math.degrees(radian)        
             if degree < 0:
                 degree = degree + 360
             degree = int(degree) #degrees from mob to player
-             #print(radian, degree)
+            #print(radian, degree)
             if degree == 0 or (degree > 0 and degree < 23) or (degree > 293 and degree < 359) :
                 dx = -IMGSIZE
                 dy = 0
@@ -259,6 +262,21 @@ class Player(Object):
                                 if game.isInRange(center_x, center_y, radius, x,y):
                                     game.level_map.breakable.remove(wall)
                                     game.level_map.moveable_walls.remove(wall)
+                        if item.kind == 'k' or item.kind =='r' or item.kind == 'o' or item.kind == 'z':
+                            game.level_map.kroz.append(item.kind)
+                            if len(game.level_map.kroz) == 4: 
+                                if game.level_map.kroz[0] == 'k' and game.level_map.kroz[1] == 'r' and game.level_map.kroz[2] == 'o' and game.level_map.kroz[3] == 'z':
+                                    game.player.score += 10000
+                                    #play a sound
+                                    game.level_map.panel.messages.append('You get the KROZ 10,000 point bonus!')
+                        if item.kind == 'freeze':
+                            game.changeTimer(slow,OFF)
+                            game.changeTimer(check_things,ETERNITY)
+                        if item.kind == 'slow':
+                            pass
+                        if item.kind == 'fast':
+                            pass
+                            
                             
 #--------------------------------------------------------------------------------------------------------------------------------------
             if newPosition.collidelistall(levelMap.triggers): #triggers that set of special events etc

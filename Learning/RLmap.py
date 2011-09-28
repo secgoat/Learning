@@ -48,10 +48,7 @@ class Tile():
                 walls = level_map.triggered_walls['Y']
                 for wall in walls:
                     game.level_map.breakable.remove(wall)
-                    
-            if self.kind == 'move_walls':
-                #game.level_map.moveable_wall_spaces.append(self.rect)
-                game.timers['move_walls'] = pygame.time.set_timer(USEREVENT+4, 1000)
+                level_map.triggered_walls['Y'] = []
             
             if self.kind == 'teleport':
                 game.player.teleport(game)
@@ -83,6 +80,7 @@ class Map:
         self.doors = []
         self.items = []
         self.mobs = []
+        self.kroz = []
         self.images = {}
         self.makeMap(player)
         #self.populateLevel()
@@ -102,6 +100,7 @@ class Map:
         self.doors = []
         self.items = []
         self.mobs = []
+        self.kroz = []
     
     def moveWalls(self, game): #level4
         available_spaces = []

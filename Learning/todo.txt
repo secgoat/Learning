@@ -1,22 +1,19 @@
+ BUG FIX:
+  1. when breakign a breakable wall that is also a removable wall, make sure to remove it from the removable wall list or game
+  will crash when trying to remove walls
+
 TODO:
 
  Keep track of places of items in the level.txt file, make a temporary level.tmp.txt and move stuff acordingly
  that will allow me to look one position up down left right easier for things like moving walls. ( does this need ot be done?)
 
+ timers, add delete pause etc.
+ 
+
+ 
  2. Make mobs less sensitive to player, only move when in same room, or on trigger spaces
 
- 3. colleciton of K R O Z letters ( letters added need to make sure they are collected in order, then add 10,000 points for it)
-  - list to show which order letters were collected in
-  -add 10k points if collected correctly
-
-
- 10. Bomb
-  - art (cleanup)
-  -trigger (done)
-  -get breakable walls / items in radius (cleanup)
-  -destroy all items / breakables in radius (doublecheck)
-  -animation 
-  
+ verify all pieces are set up in the game, play thourgh kroz and see 
  
  12. ancient tablets
 
@@ -35,7 +32,7 @@ TODO:
  
 CLEANUP:
 
- Lava: remove 10 gems and the lava square, Lava expands (need to add timer and triggers)
+
  
  wait for player to press key to start level  ( maybe can do it the same way with the game over screen?)
  
@@ -48,11 +45,20 @@ CLEANUP:
     activate creature spell
     fast creature spell
     creature zap spell
+    more creatures
     
-  6. Bottomless Pits
+ 6. Bottomless Pits
   -splash screen
   -animation
   -play again y / n?
+  
+ 10. Bomb
+  - art (cleanup)
+  -trigger (done)
+  -get breakable walls / items in radius (cleanup)
+  -destroy all items / breakables in radius (doublecheck)
+  -animation 
+
  
  
 ENHNACEMENTS:
@@ -66,6 +72,14 @@ ENHNACEMENTS:
         
 
 DONE:
+
+
+  Lava: remove 10 gems and the lava square, Lava expands (need to add timer and triggers done and done)
+  
+ 3. colleciton of K R O Z letters ( letters added need to make sure they are collected in order, then add 10,000 points for it)
+  - list to show which order letters were collected in
+  -add 10k points if collected correctly
+
 
  make mobs break or remove items when stepping on them 
  

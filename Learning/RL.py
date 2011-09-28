@@ -15,11 +15,11 @@ class Game:
         self.surface = pygame.display.set_mode((WWIDTH, WHEIGHT), 0, 32)
         pygame.display.set_caption('Rokz Return')
         self.player = Player(os.path.join(IMGDIR, 'player.bmp'), 0, 0)
-        self.level_map = RLmap.Map(4, self.player)
+        self.level_map = RLmap.Map(1, self.player)
         self.font = pygame.font.Font(None,24)
         self.game_over = False
-        self.timers = {}
         self.setTimers()
+        
 
     def checkState(self):
         if self.player.gems < 1:
@@ -28,16 +28,23 @@ class Game:
         #else:
             #return
     def setTimers(self):
-        self.timers['slow'] = pygame.time.set_timer(USEREVENT+1, 1000) # movement for slow enemies every time this goes off slow enemies are allowed to move
-        self.timers['medium'] = pygame.time.set_timer(USEREVENT+2, 750) #medium movement
-        self.timers['fast'] = pygame.time.set_timer(USEREVENT+3, 500) #fast movement
-        self.timers['move_walls'] = ' '
+        pygame.time.set_timer(slow, SLOW) # movement for slow enemies every time this goes off slow enemies are allowed to move
+        pygame.time.set_timer(medium, MEDIUM) #medium movement
+        pygame.time.set_timer(fast, FAST) #fast movement
+        pygame.time.set_timer(lava, OFF) #lava flow
+        pygame.time.set_timer(check_things, OFF)
+        
+    def changeTimer(self, timer, speed):
+        pygame.time.set_timer(timer, speed)
+                
     def showMenu(self):
         pass
 
     def isInRange(self, center_x, center_y, radius, x, y):
         square_dist = (center_x - x) ** 2 + (center_y - y) ** 2
         return square_dist <= radius ** 2
+    
+    
 
 
 
@@ -46,12 +53,6 @@ pygame.init()
 
 game = Game()
 anim.intro(game.surface)
-
-
-pygame.time.set_timer(USEREVENT+1, 1000) # movement for slow enemies every time this goes off slow enemies are allowed to move
-pygame.time.set_timer(USEREVENT+2, 750) #medium movement
-pygame.time.set_timer(USEREVENT+3, 500) #fast movement
-pygame.time.set_timer(USEREVENT+5, 500) #lava flow
 
 while not game.game_over:
     for event in pygame.event.get():
@@ -84,6 +85,7 @@ while not game.game_over:
                 game.player.gems += 10
             if event.key == K_m:
                 game.player.findMovingWalls(game)
+                game.changeTimer(lava, VERYSLOW)
                 #print(game.level_map.moveable_walls)   
             if event.key == K_n:
                 game.level_map.level += 1
@@ -101,16 +103,20 @@ while not game.game_over:
                 pygame.quit()
                 sys.exit()
 
-        if event.type == USEREVENT+1:
+        #if event.type == USEREVENT+1:
+        if event.type == slow:
             for a in game.level_map.mobs:
                 a.move(game.player, game.level_map)
             for wall in game.level_map.moveable_walls:
                 if wall.moving == True:
                     wall.move(game.player, game.level_map)
-        if event.type == game.timers['move_walls']:
-            game.level_map.moveWalls(game)
-        if event.type == USEREVENT+5:
+        '''if event.type == game.timers['move_walls']:
+            game.level_map.moveWalls(game)'''
+        if event.type == lava:
             game.level_map.lavaFlow(game)
+        if event.type == check_things:
+            game.changeTimer(slow, SLOW)
+            game.changeTimer(check_things, OFF)
 
 
     RLmap.renderAll(game.font, game.surface, game.level_map, images, game.player)
