@@ -57,12 +57,8 @@ class Tile():
         else:
             return
 
-
-                
-   
-    
 class Map:
-    def __init__(self, level, player):
+    def __init__(self, level, game):
         self.level = level
         self.level_map = []
         self.panel = RLpanel.Panel()
@@ -82,7 +78,7 @@ class Map:
         self.mobs = []
         self.kroz = []
         self.images = {}
-        self.makeMap(player)
+        self.makeMap(game)
         #self.populateLevel()
          
     def clearLevel(self):
@@ -102,7 +98,7 @@ class Map:
         self.mobs = []
         self.kroz = []
     
-    def moveWalls(self, game): #level4
+    def moveWalls(self, game):
         available_spaces = []
         player_pos = game.player.rect
         for floor in game.level_map.floors:
@@ -159,10 +155,19 @@ class Map:
                 game.level_map.items.remove(item)
             
                     
-    def makeMap(self, player):
-        f = open(os.path.join(LVLDIR,'lvl{}.txt').format(self.level),'r')
-        lines = f.readlines()
-        self.level_map = lines
+    def makeMap(self, game):
+        if self.level % 2 == 1 or self.level == 20: #This checks to see if the level is odd, or the last level to load map otherwise random level 
+            f = open(os.path.join(LVLDIR,'lvl{}.txt').format(self.level),'r')
+            lines = f.readlines()
+            self.level_map = lines
+        
+        else:    #this is where we read in the blank map, pass it to populate level then continue with the makemap
+            f = open(os.path.join(LVLDIR, 'level.txt'),'r')
+            lines = f.readlines()
+            self.level_map = lines
+            self.populateLevel(game)
+            
+        
         walls = ['#', '7', '8', 'X', 'Y', 'D', 'R', 'M','L','V','=', '/' ]
         
         for a in range(len(self.level_map)):
@@ -170,14 +175,10 @@ class Map:
                 y = a * IMGSIZE
                 x = b * IMGSIZE
 #---------------Walls, floors etc-----------------------------------------------------------------------------                
-                #if self.level_map[a][b] == ' ':
+
                 if self.level_map[a][b] not in walls:
                     self.floors.append(pygame.Rect(x,y,IMGSIZE,IMGSIZE))
-                    '''if self.level == '4':
-                        floor = Tile(x,y, False, wall_spaces)
-                        self.moveable_wall_spaces.append(floor)
-                        self.triggers.append(floor)'''
-                
+                    
                 if self.level_map[a][b] == '#' or self.level_map[a][b] == '6' or self.level_map[a][b] == 'R':  
                     self.walls.append(pygame.Rect(x,y,IMGSIZE,IMGSIZE))
                 
@@ -188,12 +189,7 @@ class Map:
                     breakable_wall =  RLobject.Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
                     self.triggered_walls['Y'].append(breakable_wall.rect)
                     self.breakable.append(breakable_wall)
-                
-                '''if self.level_map[a][b] == 'M':
-                    moveable_wall = RLobject.Object(os.path.join(IMGDIR, 'breakable.bmp'), x, y)
-                    self.moveable_wall.append(moveable_wall)
-                    self.walls.append(moveable_wall)'''
-                   
+               
                 if self.level_map[a][b] == 'M':
                     moveable_wall = RLobject.MobTile(os.path.join(IMGDIR, 'breakable.bmp'), x, y)
                     self.breakable.append(moveable_wall)
@@ -232,8 +228,8 @@ class Map:
                 
 #----------------Player------------------------------------------------------------------------------------------                
                 if self.level_map[a][b] == 'P':
-                    player.rect.top = y
-                    player.rect.left = x
+                    game.player.rect.top = y
+                    game.player.rect.left = x
                     
 #-----------------MOBS-------------------------------------------------------------------------------                
                 if self.level_map[a][b] == '1':
@@ -288,6 +284,34 @@ class Map:
                     item = RLobject.Object(os.path.join(IMGDIR, 'bomb.bmp'),x,y, 'bomb')
                     self.items.append(item)
                     
+                if self.level_map[a][b] == 'I':
+                    item = RLobject.Object(os.path.join(IMGDIR, 'invisibility.bmp'),x,y, 'invisibility')
+                    self.items.append(item)
+                    
+                if self.level_map[a][b] == 'Z':
+                    item = RLobject.Object(os.path.join(IMGDIR, 'freeze_monster.bmp'),x,y, 'freeze')
+                    self.items.append(item)
+                    
+                if self.level_map[a][b] == 'S':
+                    item = RLobject.Object(os.path.join(IMGDIR, 'slow_monster.bmp'),x,y, 'slow')
+                    self.items.append(item)
+                   
+                if self.level_map[a][b] == 'F':
+                    item = RLobject.Object(os.path.join(IMGDIR, 'fast_monster.bmp'),x,y, 'fast')
+                    self.items.append(item)
+                   
+                if self.level_map[a][b] == ']':
+                    item = RLobject.Object(os.path.join(IMGDIR, 'sack.bmp'),x,y, 'more_monsters')
+                    self.items.append(item)
+                    
+                if self.level_map[a][b] == '%':
+                    item = RLobject.Object(os.path.join(IMGDIR, 'zap_monster.bmp'),x,y, 'zap')
+                    self.items.append(item)
+                    
+                if self.level_map[a][b] == '!':
+                    item = RLobject.Tablet(os.path.join(IMGDIR, 'tablet.bmp'),x,y, 'tablet', self.level)
+                    self.items.append(item)
+                    
 #---------------Map Triggers-------------------------------------------------------------                    
                 if self.level_map[a][b] == 'H':
                     trigger = Tile(x, y, False, 'gems')
@@ -312,30 +336,8 @@ class Map:
                 if self.level_map[a][b] == 'A':
                     trigger = Tile(x,y, False, 'move_walls')
                     self.triggers.append(trigger)
-                if self.level_map[a][b] == 'I':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'invisibility.bmp'),x,y, 'invisibility')
-                    self.items.append(item)
-                    #self.triggers.append(item)
-                if self.level_map[a][b] == 'Z':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'freeze_monster.bmp'),x,y, 'freeze')
-                    self.items.append(item)
-                    #self.triggers.append(item)
-                if self.level_map[a][b] == 'S':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'slow_monster.bmp'),x,y, 'slow')
-                    self.items.append(item)
-                    #self.triggers.append(item)
-                if self.level_map[a][b] == 'F':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'fast_monster.bmp'),x,y, 'fast')
-                    self.items.append(item)
-                    #self.triggers.append(item)
-                if self.level_map[a][b] == ']':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'sack.bmp'),x,y, 'more_monsters')
-                    self.items.append(item)
-                    #self.triggers.append(item)
-                if self.level_map[a][b] == '%':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'zap_monster.bmp'),x,y, 'zap')
-                    self.items.append(item)
-                    #self.triggers.append(item)
+                
+                    
 #---------------KROZ Letters------------------------------------------------------------------------------------------
                 if self.level_map[a][b] == '<':
                     item = RLobject.Object(os.path.join(IMGDIR, 'k.bmp'),x,y, 'k')
@@ -356,44 +358,109 @@ class Map:
         self.panel.messages.append('Press any key to start level')
         
     
-    def populateLevel(self): # for randomly generated levels
-        item = None
-        max_items = 30
-        num_items = 0
-        for x in range(len(self.floors)):
-            if random.randint(0,10) == 0 and num_items < max_items:
-                num = random.randint(0,1)
-                if num == 0:
-                    item = RLobject.Object(os.path.join(IMGDIR,'whip.bmp'), self.floors[x].top, self.floors[x].left)
-                    item.kind = 'whip'
-                    num_items += 1
-                elif num == 1:
-                    item = RLobject.Object(os.path.join(IMGDIR,'gem.bmp'), self.floors[x].top, self.floors[x].left)
-                    item.kind = 'gem'
-                    num_items +=1
+    def populateLevel(self, game): # for randomly generated levels
+        ''' grab self.level_map from MakeMap, find all the blank spaces, and fill them with junk based on level, and return map to Makemap
+            need to randomly generate level content. different amounts based on level, mobs, breakable walls etc.
+            must have:
+            exit
+            player start
+        '''
+        for a in range(len(self.level_map)):
+            for b in range(len(self.level_map[a])):
+                y = a * IMGSIZE
+                x = b * IMGSIZE
+                if self.level_map[a][b] == ' ':
+                    self.floors.append(pygame.Rect(x,y,IMGSIZE,IMGSIZE))
+                    
+        #num_spaces = len(self.floors) #keep track of how many spaces we have on the map and do not exceed it
+        #print(num_spaces)
+        
+        #there are 1470 spaces available for random objects
+        
+        #add the exit
+        space = random.randint(0, (len(self.floors) -1))
+        self.exits.append(self.floors[space])
+        self.floors.pop(space)
+        
+        #add Player Start
+        space = random.randint(0, (len(self.floors) -1))
+        game.player.rect = self.floors[space]
+        self.floors.pop(space)
+        
+        
+        if game.level_map.level == 2: #30% mobs 5% gems 5% whips 1 chest
+            
+            #add a chest
+            space = random.randint(0, (len(self.floors) -1))
+            x = self.floors[space].left
+            y = self.floors[space].top
+            chest = RLobject.Object(os.path.join(IMGDIR,'chest.bmp'), x , y, 'chest')
+            self.items.append(chest) 
+            self.floors.pop(space)
+             #add a slow monsters
+             
+             #add a teleport
+             
+               
+            for a in range(241):
+                space = random.randint(0, (len(self.floors) -1))
+                x = self.floors[space].left
+                y = self.floors[space].top
+                mob = RLobject.Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y)
+                self.mobs.append(mob)
+                self.floors.pop(space)
+            for b in range(73):
+                space = random.randint(0, (len(self.floors) -1))
+                x = self.floors[space].left
+                y = self.floors[space].top
+                item = RLobject.Object(os.path.join(IMGDIR,'gem.bmp'), x, y, 'gem')
                 self.items.append(item)
-            else:
-                pass
+                self.floors.pop(space)
+            for c in range(73):
+                space = random.randint(0, (len(self.floors) -1))
+                x = self.floors[space].left
+                y = self.floors[space].top    
+                item = RLobject.Object(os.path.join(IMGDIR,'whip.bmp'), x , y, 'whip')
+                self.items.append(item)
+                self.floors.pop(space)
+            for d in range(14):
+                space = random.randint(0, (len(self.floors) -1))
+                x = self.floors[space].left
+                y = self.floors[space].top
+                item = RLobject.Object(os.path.join(IMGDIR,'gold.bmp'), x , y, 'gold')
+                self.items.append(item)
+                self.floors.pop(space)  
+            for e in range(14):
+                space = random.randint(0, (len(self.floors) -1))
+                x = self.floors[space].left
+                y = self.floors[space].top    
+                item = RLobject.Object(os.path.join(IMGDIR, 'tele_trap.bmp'), x, y, 'tele_trap')
+                trigger = Tile(x,y, False, 'teleport')
+                self.triggers.append(trigger)
+                self.items.append(item)
+                self.floors.pop(space)
+            for f in range(140):
+                space = random.randint(0, (len(self.floors) -1))
+                x = self.floors[space].left
+                y = self.floors[space].top
+                breakable_wall = RLobject.Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
+                self.breakable.append(breakable_wall)
+                self.floors.pop(space)    
+                
+                
+            
 
 def renderAll(font, surface, testMap, images, player):
     surface.fill((0,0,0))
 
     testMap.panel.update(player, font, testMap)
     
-    
-    #mapSurface = surface.subsurface((corner_x,0) +(view_width, view_height))
     for a in range(len(testMap.level_map)):
         for b in range(len(testMap.level_map[a])):
-    #for a in range(int(view_width / IMGSIZE)): # a=y b = x
-        #for b in range(int(view_height / IMGSIZE)):
             y = a * IMGSIZE # this sets the x and y coords by the number of pixels the image is, 16 ,32 etc.
             x = b * IMGSIZE
             surface.blit(images['floor'], (x,y))
-            #if testMap.level_map[a][b] == ' ':
-                # surface.blit(images['floor'], (x,y))
-            # elif testMap.level_map[a][b] == 'L':
-                #surface.blit(images['stairs'], (x,y))          
-            
+                
     #draw all objects in the lists
     for wall in testMap.walls:
         surface.blit(images['wall'], wall)
@@ -413,7 +480,8 @@ def renderAll(font, surface, testMap, images, player):
         lava.draw(surface)
     for pit in testMap.pits:
         pit.draw(surface)
-    player.draw(surface)
+    if player.invisible == False: #only draw they player if they are not invisible
+        player.draw(surface)
     if player.whipping == True:
         player.whip(surface, testMap)
         

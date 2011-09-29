@@ -15,7 +15,7 @@ class Game:
         self.surface = pygame.display.set_mode((WWIDTH, WHEIGHT), 0, 32)
         pygame.display.set_caption('Rokz Return')
         self.player = Player(os.path.join(IMGDIR, 'player.bmp'), 0, 0)
-        self.level_map = RLmap.Map(1, self.player)
+        self.level_map = RLmap.Map(1, self)
         self.font = pygame.font.Font(None,24)
         self.game_over = False
         self.setTimers()
@@ -36,7 +36,22 @@ class Game:
         
     def changeTimer(self, timer, speed):
         pygame.time.set_timer(timer, speed)
-                
+        
+    def slowTimers(self):
+        pygame.time.set_timer(slow, SLOW + 500) # movement for slow enemies every time this goes off slow enemies are allowed to move
+        pygame.time.set_timer(medium, MEDIUM + 500) #medium movement
+        pygame.time.set_timer(fast, FAST + 500) #fast movement
+        
+    def speedTimers(self):
+        pygame.time.set_timer(slow, SLOW - 500) # movement for slow enemies every time this goes off slow enemies are allowed to move
+        pygame.time.set_timer(medium, MEDIUM - 500) #medium movement
+        pygame.time.set_timer(fast, FAST - 500) #fast movement
+
+    def stopTimers(self):
+        pygame.time.set_timer(slow, OFF) # movement for slow enemies every time this goes off slow enemies are allowed to move
+        pygame.time.set_timer(medium, OFF) #medium movement
+        pygame.time.set_timer(fast, OFF) #fast movement
+                    
     def showMenu(self):
         pass
 
@@ -77,7 +92,8 @@ while not game.game_over:
             if event.key == K_DOWN or event.key == K_KP2:
                 game.player.move(0, IMGSIZE, game)
             if event.key == K_t:
-                game.player.teleport(game)
+                if game.player.teleports > 0:
+                    game.player.teleport(game)
             if event.key == K_x:
                 game.player.keys += 10
                 game.player.teleports += 10
@@ -92,7 +108,7 @@ while not game.game_over:
                 game.level_map.clearLevel()
                 RLmap.renderAll(game.font, game.surface, game.level_map, images, game.player)
                 game.clock.tick(2)
-                game.level_map.makeMap(game.player)
+                game.level_map.makeMap(game)
                 RLmap.renderAll(game.font, game.surface, game.level_map, images, game.player)
                 while not pygame.event.wait().type in (QUIT, KEYDOWN):
                     pass
@@ -115,8 +131,10 @@ while not game.game_over:
         if event.type == lava:
             game.level_map.lavaFlow(game)
         if event.type == check_things:
-            game.changeTimer(slow, SLOW)
-            game.changeTimer(check_things, OFF)
+            #game.changeTimer(slow, SLOW)
+            #game.changeTimer(check_things, OFF)
+            game.setTimers()
+            game.player.invisible = False
 
 
     RLmap.renderAll(game.font, game.surface, game.level_map, images, game.player)

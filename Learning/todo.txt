@@ -3,26 +3,32 @@
   will crash when trying to remove walls
 
 TODO:
-
- Keep track of places of items in the level.txt file, make a temporary level.tmp.txt and move stuff acordingly
- that will allow me to look one position up down left right easier for things like moving walls. ( does this need ot be done?)
-
- timers, add delete pause etc.
- 
-
  
  2. Make mobs less sensitive to player, only move when in same room, or on trigger spaces
 
  verify all pieces are set up in the game, play thourgh kroz and see 
- 
- 12. ancient tablets
 
  13. the randomly generated levels
+ 	2: lvl1 mobs and some randowm whips gems etc
+ 	4: lvl2 mobs and random stuff
+ 	6: breakable walls, whips, gems, no mobs
+ 	8: some whips shit ton of lvl1 mobs
+ 	10: Mostly lvl 1,2,3 mobs breakable walls, soem whips
+ 	12:mostly lvl2 mobs
+ 	14 teleport traps, inviisbilty, breakable walls some lvl3 mobs, a couple question marks
+ 	16 pits, breakable walls, gold nuggets, lvl1 mobs
+ 	18 breakable walls, question marks
+ 		
 
  14. figure out the differences between mobs, so far i have 3 timers set up, need to at least make them move at different speeds
 
 
  16. sound
+  -whip
+  -whip through breakable wall
+  - mob runs into player blip
+  - push stone grating noise
+  
 
  17. splash / animation screens
         title
@@ -32,18 +38,18 @@ TODO:
  
 CLEANUP:
 
-
+ timers, add delete pause etc.
  
  wait for player to press key to start level  ( maybe can do it the same way with the game over screen?)
  
  Spells: (add effects)
-    Freeze Creature
-    slow creature
+    Freeze Creature (doneish)
+    slow creature (done)
     image for teleport trap - DONE
     earthquake (adds bolders)
     invisibility
     activate creature spell
-    fast creature spell
+    fast creature spell (done)
     creature zap spell
     more creatures
     
@@ -58,14 +64,30 @@ CLEANUP:
   -get breakable walls / items in radius (cleanup)
   -destroy all items / breakables in radius (doublecheck)
   -animation 
+  
+ 12. ancient tablets (nned to get the random levels dons so these pan out right)
+   'You found an ancient Tablet with writing on it...huge points!');
+   1: Flash(6,25,'Remember to experiment with every new object on a level.');
+   3: Flash(5,25,'Only use your valuable Teleports for last chance escapes!');
+   5: Flash(6,25,'You''re right in the middle of a Lava Flow!  Run for it!');
+   7: Flash(10,25,'You''ll need the two keys from the previous level!');
+   9: Flash(5,25,'The two chests can be yours if you find the hidden spell!');
+   11:Flash(17,25,'You learn from successful failures.');
+   13:Flash(4,25,'A Creature Generator exists within this chamber--destroy it!');
+   15:Flash(9,25,'By throwing dirt at someone you only lose ground.');
+   17:Flash(6,25,'The Bubble Creatures knock off three Gems when touched!');
+   19:Flash(3,25,'Be vigilant Adventurer, the Crown is near, but well protected.');
+   20:Flash(8,25,'You''ve survived so far, Adventurer.  Can you succeed?');
 
  
  
 ENHNACEMENTS:
 
- 
- Make subsurface of main surface, blit everything to subsurface, copy subsurface, blit copy to main surface.
- had to revert and lost all those changes, hope I can do it again.
+ Keep track of places of items in the level.txt file, make a temporary level.tmp.txt and move stuff acordingly
+ that will allow me to look one position up down left right easier for things like moving walls. ( does this need ot be done?)
+
+ ?Make subsurface of main surface, blit everything to subsurface, copy subsurface, blit copy to main surface.
+ had to revert and lost all those changes, hope I can do it again.?
  
  add the 32x32 tiles and figure out how to scroll map
  

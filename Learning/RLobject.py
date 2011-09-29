@@ -29,10 +29,37 @@ class Door(Object):
         Object.__init__(self, image, x, y)
         self.locked = True
 #--------------------------------------------------------------------------------
-class tablet(Object):
-    def __init__(self, image, x, y, message):
-        object.__init__(self, image, x, y)
-        self.message = message
+class Tablet(Object):
+    def __init__(self, image, x, y, message, level):
+        Object.__init__(self, image, x, y)
+        self.message = ' '
+        #self.kind = 'tablet'
+        self.level = level
+        self.setMessage()
+        
+    def setMessage(self):
+        if self.level == 1:
+            self.message = 'Remember to experiment with every new object on a level.'
+        if self.level == 3:
+            self.message = 'Only use your valuable Teleports for last chance escapes!'
+        if self.level == 5:
+            self.message = 'Youre right in the middle of a Lava Flow!  Run for it!'
+        if self.level == 7:
+            self.message = 'You''ll need the two keys from the previous level!'
+        if self.level == 9:
+            self.message = 'The two chests can be yours if you find the hidden spell!'
+        if self.level == 11:
+            self.message = 'You learn from successful failures.'
+        if self.level == 13:
+            self.message = 'A Creature Generator exists within this chamber--destroy it!'
+        if self.level == 15:
+            self.message = 'By throwing dirt at someone you only lose ground.'
+        if self.level == 17:
+            self.message = 'The Bubble Creatures knock off three Gems when touched!'
+        if self.level == 19:
+            self.message = 'Be vigilant Adventurer, the Crown is near, but well protected.'
+        if self.level == 20:
+            self.message = 'You''ve survived so far, Adventurer.  Can you succeed?'
 #----------------------------------------------------------------------------- -
 class Whip(pygame.sprite.Sprite):
     def __init__(self):
@@ -180,6 +207,7 @@ class Player(Object):
         self.teleports = 0
         self.keys = 0
         self.score = 0
+        self.invisible = False
         self.weapon = Whip()
         self.whipping = False
         self.whip_frame = 1
@@ -270,12 +298,21 @@ class Player(Object):
                                     #play a sound
                                     game.level_map.panel.messages.append('You get the KROZ 10,000 point bonus!')
                         if item.kind == 'freeze':
-                            game.changeTimer(slow,OFF)
+                            game.stopTimers()
                             game.changeTimer(check_things,ETERNITY)
+                            game.level_map.panel.messages.append('You trigger a freeze monster spell!')
                         if item.kind == 'slow':
-                            pass
+                            game.slowTimers()
+                            game.changeTimer(check_things,ETERNITY)
+                            game.level_map.panel.messages.append('You trigger a slow monster spell!')
                         if item.kind == 'fast':
-                            pass
+                            game.speedTimers()
+                            game.changeTimer(check_things,ETERNITY)
+                            game.level_map.panel.messages.append('You trigger a speed monster spell!')
+                        if item.kind == 'invisibility':
+                            game.player.invisible = True
+                            game.changeTimer(check_things,ETERNITY)
+                            game.level_map.panel.messages.append('You trigger an invisibiltiy spell!')
                             
                             
 #--------------------------------------------------------------------------------------------------------------------------------------
@@ -321,12 +358,11 @@ class Player(Object):
             if newPosition.collidelistall(levelMap.exits): #did they get to the level exit?
                 for level_exit in levelMap.exits:
                     if level_exit == newPosition:
-                        #level = levelMap.level + 1
                         levelMap.level += 1
                         game.level_map.clearLevel()
                         RLmap.renderAll(game.font, game.surface, game.level_map, images, game.player)
                         game.clock.tick(2)
-                        game.level_map.makeMap(self)
+                        game.level_map.makeMap(game)
                         RLmap.renderAll(game.font, game.surface, game.level_map, images, game.player)
                         while not pygame.event.wait().type in (QUIT, KEYDOWN):
                             pass
