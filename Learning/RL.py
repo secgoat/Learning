@@ -15,8 +15,8 @@ class Game:
         self.surface = pygame.display.set_mode((WWIDTH, WHEIGHT), 0, 32)
         pygame.display.set_caption('Rokz Return')
         self.player = Player(os.path.join(IMGDIR, 'player.bmp'), 0, 0)
-        self.level_map = RLmap.Map(1, self)
-        self.font = pygame.font.Font(None,24)
+        self.level_map = RLmap.Map(5, self)
+        self.font = pygame.font.Font(os.path.join(RESDIR, 'freesansbold.ttf'),24)
         self.game_over = False
         self.setTimers()
         

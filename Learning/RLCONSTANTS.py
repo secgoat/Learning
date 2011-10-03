@@ -12,7 +12,7 @@ else:
 
 IMGDIR = os.path.join(ROOTDIR, 'img')
 LVLDIR = os.path.join(ROOTDIR, 'lvl')
-
+RESDIR = os.path.join(ROOTDIR, 'res')
 
 
 #Game Window variables 

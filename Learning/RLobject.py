@@ -30,10 +30,10 @@ class Door(Object):
         self.locked = True
 #--------------------------------------------------------------------------------
 class Tablet(Object):
-    def __init__(self, image, x, y, message, level):
+    def __init__(self, image, x, y, level):
         Object.__init__(self, image, x, y)
         self.message = ' '
-        #self.kind = 'tablet'
+        self.kind = 'tablet'
         self.level = level
         self.setMessage()
         
@@ -43,9 +43,9 @@ class Tablet(Object):
         if self.level == 3:
             self.message = 'Only use your valuable Teleports for last chance escapes!'
         if self.level == 5:
-            self.message = 'Youre right in the middle of a Lava Flow!  Run for it!'
+            self.message = 'You\'re right in the middle of a Lava Flow!  Run for it!'
         if self.level == 7:
-            self.message = 'You''ll need the two keys from the previous level!'
+            self.message = 'You\'ll need the two keys from the previous level!'
         if self.level == 9:
             self.message = 'The two chests can be yours if you find the hidden spell!'
         if self.level == 11:
@@ -59,7 +59,7 @@ class Tablet(Object):
         if self.level == 19:
             self.message = 'Be vigilant Adventurer, the Crown is near, but well protected.'
         if self.level == 20:
-            self.message = 'You''ve survived so far, Adventurer.  Can you succeed?'
+            self.message = 'You\'ve survived so far, Adventurer.  Can you succeed?'
 #----------------------------------------------------------------------------- -
 class Whip(pygame.sprite.Sprite):
     def __init__(self):
@@ -313,6 +313,9 @@ class Player(Object):
                             game.player.invisible = True
                             game.changeTimer(check_things,ETERNITY)
                             game.level_map.panel.messages.append('You trigger an invisibiltiy spell!')
+                        if item.kind == 'tablet':
+                            game.player.score += 10000
+                            game.level_map.panel.messages.append(item.message)
                             
                             
 #--------------------------------------------------------------------------------------------------------------------------------------

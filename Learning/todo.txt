@@ -8,19 +8,13 @@ TODO:
 
  verify all pieces are set up in the game, play thourgh kroz and see 
 
- 13. the randomly generated levels
- 	2: lvl1 mobs and some randowm whips gems etc
- 	4: lvl2 mobs and random stuff
- 	6: breakable walls, whips, gems, no mobs
- 	8: some whips shit ton of lvl1 mobs
- 	10: Mostly lvl 1,2,3 mobs breakable walls, soem whips
- 	12:mostly lvl2 mobs
- 	14 teleport traps, inviisbilty, breakable walls some lvl3 mobs, a couple question marks
- 	16 pits, breakable walls, gold nuggets, lvl1 mobs
- 	18 breakable walls, question marks
- 		
+ statues: cause dmage toplayer, soemthignliek 10, what is the symbol in the maps?
 
  14. figure out the differences between mobs, so far i have 3 timers set up, need to at least make them move at different speeds
+  lvl1 Mob: slower, 1 gem per hit
+  lvl2 mob:
+  lvl3 Mob:
+  lvl4 Mob:
 
 
  16. sound
@@ -78,6 +72,18 @@ CLEANUP:
    17:Flash(6,25,'The Bubble Creatures knock off three Gems when touched!');
    19:Flash(3,25,'Be vigilant Adventurer, the Crown is near, but well protected.');
    20:Flash(8,25,'You''ve survived so far, Adventurer.  Can you succeed?');
+   
+ 13. the randomly generated levels
+ 	2: lvl1 mobs and some randowm whips gems etc
+ 	4: lvl2 mobs and random stuff
+ 	6: breakable walls, whips, gems, no mobs
+ 	8: some whips shit ton of lvl1 mobs
+ 	10: Mostly lvl 1,2,3 mobs breakable walls, soem whips
+ 	12:mostly lvl2 mobs
+ 	14 teleport traps, inviisbilty, breakable walls some lvl3 mobs, a couple question marks
+ 	16 pits, breakable walls, gold nuggets, lvl1 mobs
+ 	18 breakable walls, question marks
+ 		
 
  
  
