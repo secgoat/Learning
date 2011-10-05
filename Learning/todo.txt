@@ -1,6 +1,16 @@
  BUG FIX:
   1. when breakign a breakable wall that is also a removable wall, make sure to remove it from the removable wall list or game
   will crash when trying to remove walls
+  
+  teleport putting player in walls, check floor spaces, especially on random levels
+  
+  set up triggers for moving walls
+  
+  File "C:\Users\jtilson\Documents\projects\Kroz\Learning\RLobject.py", line 121, in checkDistance
+   distance = abs(math.sqrt(math.pow((player.rect.centerx - self.rect.centerx),2) + math.pow((player.rect.centery - self.rect.centery),2))) / IMGSIZE
+   AttributeError: 'MobTile' object has no attribute 'centerx'
+   
+  
 
 TODO:
  
@@ -8,13 +18,19 @@ TODO:
 
  verify all pieces are set up in the game, play thourgh kroz and see 
 
- statues: cause dmage toplayer, soemthignliek 10, what is the symbol in the maps?
-
+ statues: cause drains life when standing next to it, hard to break, what is the symbol in the maps?
+ 
+ level 13: secret tunnels and monster generator
+ 
+ level 17 Bubble creatuires - 3 gems no movement?
+ 
+ levwel 20: super fast creature - 5 gems
+ 
  14. figure out the differences between mobs, so far i have 3 timers set up, need to at least make them move at different speeds
-  lvl1 Mob: slower, 1 gem per hit
-  lvl2 mob:
-  lvl3 Mob:
-  lvl4 Mob:
+  lvl1 Mob (A): slower, 1 gem per hit, more view distance
+  lvl2 mob (O): faster? 2 gems, lower view distance
+  lvl3 Mob (U): faster, 1 gems
+  lvl4 Mob ( spade):fast 3 gems
 
 
  16. sound

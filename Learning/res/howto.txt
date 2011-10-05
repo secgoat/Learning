@@ -1,0 +1,10 @@
+How to Play:
+Navigation:
+WASD / numberpad / keypad
+Space Bar  to use your Whip
+T to teleport
+This is a Gem It gives you 1 life point, when you get hurt you lose gems
+this is a whip, use it to kill your enemies and break some objects in game.
+this is a teleport scroll, use it to teleport to a random location in the game.
+this is a pile of gold, it will increase your score.
+the rest is up to you to figure out what it is and what it does.

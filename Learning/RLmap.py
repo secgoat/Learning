@@ -49,9 +49,15 @@ class Tile():
                 for wall in walls:
                     game.level_map.breakable.remove(wall)
                 level_map.triggered_walls['Y'] = []
+                
+            if self.kind == 'move_walls':
+                game.player.findMovingWalls(game)
             
             if self.kind == 'teleport':
                 game.player.teleport(game)
+                
+            if self.kind == 'lava_flow':
+                game.changeTimer(lava, VERYSLOW)
                 
             self.triggered = True
         else:
@@ -335,6 +341,9 @@ class Map:
                     self.items.append(item)
                 if self.level_map[a][b] == 'A':
                     trigger = Tile(x,y, False, 'move_walls')
+                    self.triggers.append(trigger)
+                if self.level_map[a][b] == '9':
+                    trigger = Tile(x,y, False, "lava_flow")
                     self.triggers.append(trigger)
                 
                     

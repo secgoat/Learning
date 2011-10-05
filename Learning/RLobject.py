@@ -122,7 +122,9 @@ class Mob(Object):
         # this gets the distance between 2 points. absolute value so it is a positive number, pow raises first part by second part Ie X to the power of 2. and then divide by IMGsize to fidn how many squares on the map away the player is from the mob.
         return distance
     
-    def move(self, player, levelMap):
+    def move(self, game):
+        player = game.player
+        levelMap = game.level_map
         dy = 0
         dx = 0
         if self.checkDistance(player) <= self.view_range:
@@ -178,6 +180,8 @@ class Mob(Object):
                 if self.kind != 'mob tile':
                     levelMap.mobs.remove(self)
                     player.gems -= 1
+                    game.mob_hit_player.play()
+                    
                 else:
                     self.rect = oldPosition
                     return

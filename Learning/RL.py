@@ -13,12 +13,22 @@ class Game:
         self.level = 0
         self.clock = pygame.time.Clock()
         self.surface = pygame.display.set_mode((WWIDTH, WHEIGHT), 0, 32)
-        pygame.display.set_caption('Rokz Return')
+        pygame.display.set_caption('Zero Trunk Rot')
         self.player = Player(os.path.join(IMGDIR, 'player.bmp'), 0, 0)
-        self.level_map = RLmap.Map(5, self)
-        self.font = pygame.font.Font(os.path.join(RESDIR, 'freesansbold.ttf'),24)
+        self.level_map = RLmap.Map(1, self)
+        self.font = pygame.font.Font(os.path.join(RESDIR,'visitor1.ttf'),18)
+        self.title_font = pygame.font.Font(os.path.join(RESDIR,'visitor1.ttf'),36)
         self.game_over = False
         self.setTimers()
+        self.setSounds()
+        
+    def setSounds(self):
+        
+        self.mob_hit_player = pygame.mixer.Sound(os.path.join(RESDIR, 'mobHitPlayer.wav'))
+        self.currentVolume = 1.0
+        self.musicPause = False
+        pygame.mixer.music.set_volume(self.currentVolume)
+
         
 
     def checkState(self):
@@ -60,14 +70,18 @@ class Game:
         return square_dist <= radius ** 2
     
     
+    
 
 
 
 #pygame initialization
 pygame.init()
 
+
+    
+    
 game = Game()
-anim.intro(game.surface)
+anim.intro(game)
 
 while not game.game_over:
     for event in pygame.event.get():
@@ -122,10 +136,10 @@ while not game.game_over:
         #if event.type == USEREVENT+1:
         if event.type == slow:
             for a in game.level_map.mobs:
-                a.move(game.player, game.level_map)
+                a.move(game)
             for wall in game.level_map.moveable_walls:
                 if wall.moving == True:
-                    wall.move(game.player, game.level_map)
+                    wall.move(game)
         '''if event.type == game.timers['move_walls']:
             game.level_map.moveWalls(game)'''
         if event.type == lava:
