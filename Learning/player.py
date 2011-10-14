@@ -2,7 +2,8 @@ import pygame
 import RLmap, anim
 import math, random
 from RLCONSTANTS import *
-from RLobject import Object, Whip, Mob
+from RLobject import Object, Whip
+from mob import Mob, MobTile
 from pygame.locals import *
 
 

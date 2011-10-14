@@ -1,7 +1,8 @@
 import os
 from RLCONSTANTS import *
-import RLobject
 import RLpanel
+from mob import Mob
+from RLobject import Object, Door, Tablet
 import pygame
 from pygame.locals import *
 import random
@@ -29,7 +30,7 @@ class Tile():
                 for x in range(new_gems):
                     random_space = random.randint(1, len(level_map.floors))
                     random_space = level_map.floors.pop(random_space)
-                    item = RLobject.Object(os.path.join(IMGDIR, 'gem.bmp'), random_space.left, random_space.top, 'gem')
+                    item = Object(os.path.join(IMGDIR, 'gem.bmp'), random_space.left, random_space.top, 'gem')
                     level_map.items.append(item)
             
             if self.kind == 'walls1':
@@ -67,7 +68,7 @@ class Tile():
             if self.kind == 'earthquake':
                 for a in range(50,100):
                     space = random.choice(game.level_map.floors)
-                    breakable_wall = RLobject.Object(os.path.join(IMGDIR,'breakable.bmp'), space.left,space.top)
+                    breakable_wall = Object(os.path.join(IMGDIR,'breakable.bmp'), space.left,space.top)
                     game.level_map.breakable.append(breakable_wall)
             
             self.triggered = True
@@ -136,7 +137,7 @@ class Map:
             right =  lava.rect.move(0, IMGSIZE)
             #print('up: {0}, down:{1}, left:{2}, right{3}'.format(up,down,left,right))
             if down in game.level_map.floors:
-                new_lava = RLobject.Object(os.path.join(IMGDIR,'lava.bmp'), down.left, down.top)
+                new_lava = Object(os.path.join(IMGDIR,'lava.bmp'), down.left, down.top)
                 game.level_map.floors.remove(down)
                 game.level_map.lava.append(new_lava)
                 for item in game.level_map.items:
@@ -144,7 +145,7 @@ class Map:
                         game.level_map.items.remove(item)
                 return
             if left in game.level_map.floors:
-                new_lava = RLobject.Object(os.path.join(IMGDIR,'lava.bmp'), left.left, left.top)
+                new_lava = Object(os.path.join(IMGDIR,'lava.bmp'), left.left, left.top)
                 game.level_map.floors.remove(left)
                 game.level_map.lava.append(new_lava)
                 for item in game.level_map.items:
@@ -152,7 +153,7 @@ class Map:
                         game.level_map.items.remove(item)
                 return
             if right in game.level_map.floors:
-                new_lava = RLobject.Object(os.path.join(IMGDIR,'lava.bmp'), right.left, right.top)
+                new_lava = Object(os.path.join(IMGDIR,'lava.bmp'), right.left, right.top)
                 game.level_map.floors.remove(right)
                 game.level_map.lava.append(new_lava)
                 for item in game.level_map.items:
@@ -160,7 +161,7 @@ class Map:
                         game.level_map.items.remove(item)
                 return
             if up in game.level_map.floors:
-                new_lava = RLobject.Object(os.path.join(IMGDIR,'lava.bmp'), up.left, up.top)
+                new_lava = Object(os.path.join(IMGDIR,'lava.bmp'), up.left, up.top)
                 game.level_map.floors.remove(up)
                 game.level_map.lava.append(new_lava)
                 for item in game.level_map.items:
@@ -200,20 +201,20 @@ class Map:
                     self.walls.append(pygame.Rect(x,y,IMGSIZE,IMGSIZE))
                 
                 if self.map_of_level[a][b] == 'X':
-                    breakable_wall = RLobject.Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
+                    breakable_wall = Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
                     self.breakable.append(breakable_wall)
                 if self.map_of_level[a][b] == 'Y':
-                    breakable_wall =  RLobject.Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
+                    breakable_wall =  Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
                     self.triggered_walls['Y'].append(breakable_wall.rect)
                     self.breakable.append(breakable_wall)
                
                 if self.map_of_level[a][b] == 'M':
-                    moveable_wall = RLobject.MobTile(os.path.join(IMGDIR, 'breakable.bmp'), x, y)
+                    moveable_wall = MobTile(os.path.join(IMGDIR, 'breakable.bmp'), x, y)
                     self.breakable.append(moveable_wall)
                     self.moveable_walls.append(moveable_wall)
                         
                 if self.map_of_level[a][b] == 'D':
-                    door = RLobject.Door(os.path.join(IMGDIR,'door.bmp'), x, y)
+                    door = Door(os.path.join(IMGDIR,'door.bmp'), x, y)
                     self.doors.append(door)
                 
                 if self.map_of_level[a][b] == ':':
@@ -231,16 +232,16 @@ class Map:
                     self.exits.append(pygame.Rect(x,y,IMGSIZE,IMGSIZE))
 
                 if self.map_of_level[a][b] == 'V':
-                    lava = RLobject.Object(os.path.join(IMGDIR,'lava.bmp'), x, y)
+                    lava = Object(os.path.join(IMGDIR,'lava.bmp'), x, y)
                     self.lava.append(lava)
                 if self.map_of_level[a][b] == '=':
-                    pit = RLobject.Object(os.path.join(IMGDIR,'pit.bmp'), x, y)
+                    pit = Object(os.path.join(IMGDIR,'pit.bmp'), x, y)
                     self.pits.append(pit)
                 if self.map_of_level[a][b] == 'R':
                     water = pygame.Rect(x,y,IMGSIZE,IMGSIZE)
                     self.water.append(water)
                 if self.map_of_level[a][b] == '/':
-                    tree_wall = RLobject.Object(os.path.join(IMGDIR,'tree.bmp'), x, y)
+                    tree_wall = Object(os.path.join(IMGDIR,'tree.bmp'), x, y)
                     self.breakable.append(tree_wall)
                 
 #----------------Player------------------------------------------------------------------------------------------                
@@ -250,88 +251,88 @@ class Map:
                     
 #-----------------MOBS-------------------------------------------------------------------------------                
                 if self.map_of_level[a][b] == '1':
-                    mob = RLobject.Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y, 1, 'slow')
+                    mob = Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y, 1, 'slow')
                     self.mobs.append(mob)
                 
                 if self.map_of_level[a][b] == '2':
-                    mob = RLobject.Mob(os.path.join(IMGDIR,'elf_mummy.bmp'), x , y, 2, 'medium')
+                    mob = Mob(os.path.join(IMGDIR,'elf_mummy.bmp'), x , y, 2, 'medium')
                     self.mobs.append(mob)
                 
                 if self.map_of_level[a][b] == '3':
-                    mob = RLobject.Mob(os.path.join(IMGDIR,'ogre_lord.bmp'), x , y, 3, 'fast')
+                    mob = Mob(os.path.join(IMGDIR,'ogre_lord.bmp'), x , y, 3, 'fast')
                     self.mobs.append(mob)
                 
                 if self.map_of_level[a][b] == '4':
-                    mob = RLobject.Mob(os.path.join(IMGDIR,'umber_hulk.bmp'), x , y, 3, 'fast')
+                    mob = Mob(os.path.join(IMGDIR,'umber_hulk.bmp'), x , y, 3, 'fast')
                     self.mobs.append(mob)
 #---------------Items-----------------------------------------------------------------                
                 if self.map_of_level[a][b] == '+':
-                    item = RLobject.Object(os.path.join(IMGDIR,'gem.bmp'), x, y, 'gem')
+                    item = Object(os.path.join(IMGDIR,'gem.bmp'), x, y, 'gem')
                     self.items.append(item)
                 
                 if self.map_of_level[a][b] == 'W':
-                    item = RLobject.Object(os.path.join(IMGDIR,'whip.bmp'), x , y, 'whip')
+                    item = Object(os.path.join(IMGDIR,'whip.bmp'), x , y, 'whip')
                     self.items.append(item)
                 
                 if self.map_of_level[a][b] == 'T':
-                    item = RLobject.Object(os.path.join(IMGDIR,'teleport.bmp'), x , y, 'teleport')
+                    item = Object(os.path.join(IMGDIR,'teleport.bmp'), x , y, 'teleport')
                     self.items.append(item)
                 
                 if self.map_of_level[a][b] == 'K':
-                    item = RLobject.Object(os.path.join(IMGDIR,'key.bmp'), x , y, 'key')
+                    item = Object(os.path.join(IMGDIR,'key.bmp'), x , y, 'key')
                     self.items.append(item)
                 
                 if self.map_of_level[a][b] == '*':
-                    item = RLobject.Object(os.path.join(IMGDIR,'gold.bmp'), x , y, 'gold')
+                    item = Object(os.path.join(IMGDIR,'gold.bmp'), x , y, 'gold')
                     self.items.append(item)
                 
                 if self.map_of_level[a][b] == 'C':
-                    item = RLobject.Object(os.path.join(IMGDIR,'chest.bmp'), x , y, 'chest')
+                    item = Object(os.path.join(IMGDIR,'chest.bmp'), x , y, 'chest')
                     self.items.append(item)
 
                 if self.map_of_level[a][b] == 'Q':
-                    item = RLobject.Object(os.path.join(IMGDIR,'ring.bmp'),x,y,'whip_ring')
+                    item = Object(os.path.join(IMGDIR,'ring.bmp'),x,y,'whip_ring')
                     self.items.append(item)
                     
                 if self.map_of_level[a][b] == '?':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'sack.bmp'),x,y, 'gem_sack')
+                    item = Object(os.path.join(IMGDIR, 'sack.bmp'),x,y, 'gem_sack')
                     self.items.append(item)
                     
                 if self.map_of_level[a][b] == 'B':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'bomb.bmp'),x,y, 'bomb')
+                    item = Object(os.path.join(IMGDIR, 'bomb.bmp'),x,y, 'bomb')
                     self.items.append(item)
                     
                 if self.map_of_level[a][b] == '!':
-                    item = RLobject.Tablet(os.path.join(IMGDIR, 'tablet.bmp'),x,y, self.level)
+                    item = Tablet(os.path.join(IMGDIR, 'tablet.bmp'),x,y, self.level)
                     self.items.append(item)
                     
 #----------------SPELLS----------------------------------------------------------------------                    
                 if self.map_of_level[a][b] == 'I':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'invisibility.bmp'),x,y, 'invisibility')
+                    item = Object(os.path.join(IMGDIR, 'invisibility.bmp'),x,y, 'invisibility')
                     self.items.append(item)
                     
                 if self.map_of_level[a][b] == 'Z':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'freeze_monster.bmp'),x,y, 'freeze')
+                    item = Object(os.path.join(IMGDIR, 'freeze_monster.bmp'),x,y, 'freeze')
                     self.items.append(item)
                     
                 if self.map_of_level[a][b] == 'S':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'slow_monster.bmp'),x,y, 'slow')
+                    item = Object(os.path.join(IMGDIR, 'slow_monster.bmp'),x,y, 'slow')
                     self.items.append(item)
                    
                 if self.map_of_level[a][b] == 'F':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'fast_monster.bmp'),x,y, 'fast')
+                    item = Object(os.path.join(IMGDIR, 'fast_monster.bmp'),x,y, 'fast')
                     self.items.append(item)
                    
                 if self.map_of_level[a][b] == ']':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'sack.bmp'),x,y, 'more_monsters')
+                    item = Object(os.path.join(IMGDIR, 'sack.bmp'),x,y, 'more_monsters')
                     self.items.append(item)
                     
                 if self.map_of_level[a][b] == '%':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'zap_monster.bmp'),x,y, 'zap')
+                    item = Object(os.path.join(IMGDIR, 'zap_monster.bmp'),x,y, 'zap')
                     self.items.append(item)
                     
                 if self.map_of_level[a][b] == '.':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'tele_trap.bmp'), x, y, 'tele_trap')
+                    item = Object(os.path.join(IMGDIR, 'tele_trap.bmp'), x, y, 'tele_trap')
                     self.items.append(item)
                     
                
@@ -370,19 +371,19 @@ class Map:
                     
 #---------------KROZ Letters------------------------------------------------------------------------------------------
                 if self.map_of_level[a][b] == '<':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'k.bmp'),x,y, 'k')
+                    item = Object(os.path.join(IMGDIR, 'k.bmp'),x,y, 'k')
                     self.items.append(item)
                     #self.triggers.append(item)
                 if self.map_of_level[a][b] == '[':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'r.bmp'),x,y, 'r')
+                    item = Object(os.path.join(IMGDIR, 'r.bmp'),x,y, 'r')
                     self.items.append(item)
                     #self.triggers.append(item)
                 if self.map_of_level[a][b] == '|':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'o.bmp'),x,y, 'o')
+                    item = Object(os.path.join(IMGDIR, 'o.bmp'),x,y, 'o')
                     self.items.append(item)
                     #self.triggers.append(item)
                 if self.map_of_level[a][b] == '"':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'z.bmp'),x,y, 'z')
+                    item = Object(os.path.join(IMGDIR, 'z.bmp'),x,y, 'z')
                     self.items.append(item)
                     #self.triggers.append(item)
         self.panel.messages.append('Press any key to start level')
@@ -422,7 +423,7 @@ class Map:
             space = random.randint(0, (len(self.floors) -1))
             x = self.floors[space].left
             y = self.floors[space].top
-            chest = RLobject.Object(os.path.join(IMGDIR,'chest.bmp'), x , y, 'chest')
+            chest = Object(os.path.join(IMGDIR,'chest.bmp'), x , y, 'chest')
             self.items.append(chest) 
             self.floors.pop(space)
             #add a slow monsters
@@ -434,35 +435,35 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                mob = RLobject.Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y,1,'slow')
+                mob = Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y,1,'slow')
                 self.mobs.append(mob)
                 self.floors.pop(space)
             for b in range(73):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                item = RLobject.Object(os.path.join(IMGDIR,'gem.bmp'), x, y, 'gem')
+                item = Object(os.path.join(IMGDIR,'gem.bmp'), x, y, 'gem')
                 self.items.append(item)
                 self.floors.pop(space)
             for c in range(73):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top    
-                item = RLobject.Object(os.path.join(IMGDIR,'whip.bmp'), x , y, 'whip')
+                item = Object(os.path.join(IMGDIR,'whip.bmp'), x , y, 'whip')
                 self.items.append(item)
                 self.floors.pop(space)
             for d in range(14):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                item = RLobject.Object(os.path.join(IMGDIR,'gold.bmp'), x , y, 'gold')
+                item = Object(os.path.join(IMGDIR,'gold.bmp'), x , y, 'gold')
                 self.items.append(item)
                 self.floors.pop(space)  
             for e in range(14):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top    
-                item = RLobject.Object(os.path.join(IMGDIR, 'tele_trap.bmp'), x, y, 'tele_trap')
+                item = Object(os.path.join(IMGDIR, 'tele_trap.bmp'), x, y, 'tele_trap')
                 trigger = Tile(x,y, False, 'teleport')
                 self.triggers.append(trigger)
                 self.items.append(item)
@@ -471,7 +472,7 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                breakable_wall = RLobject.Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
+                breakable_wall = Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
                 self.breakable.append(breakable_wall)
                 self.floors.pop(space)    
                 
@@ -480,7 +481,7 @@ class Map:
             space = random.randint(0, (len(self.floors) -1))
             x = self.floors[space].left
             y = self.floors[space].top
-            chest = RLobject.Object(os.path.join(IMGDIR,'chest.bmp'), x , y, 'chest')
+            chest = Object(os.path.join(IMGDIR,'chest.bmp'), x , y, 'chest')
             self.items.append(chest) 
             self.floors.pop(space)
             #add a slow monsters
@@ -492,35 +493,35 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                mob = RLobject.Mob(os.path.join(IMGDIR,'elf_mummy.bmp'), x , y,2,'medium')
+                mob = Mob(os.path.join(IMGDIR,'elf_mummy.bmp'), x , y,2,'medium')
                 self.mobs.append(mob)
                 self.floors.pop(space)
             for b in range(73):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                item = RLobject.Object(os.path.join(IMGDIR,'gem.bmp'), x, y, 'gem')
+                item = Object(os.path.join(IMGDIR,'gem.bmp'), x, y, 'gem')
                 self.items.append(item)
                 self.floors.pop(space)
             for c in range(73):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top    
-                item = RLobject.Object(os.path.join(IMGDIR,'whip.bmp'), x , y, 'whip')
+                item = Object(os.path.join(IMGDIR,'whip.bmp'), x , y, 'whip')
                 self.items.append(item)
                 self.floors.pop(space)
             for d in range(14):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                item = RLobject.Object(os.path.join(IMGDIR,'gold.bmp'), x , y, 'gold')
+                item = Object(os.path.join(IMGDIR,'gold.bmp'), x , y, 'gold')
                 self.items.append(item)
                 self.floors.pop(space)  
             for e in range(14):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top    
-                item = RLobject.Object(os.path.join(IMGDIR, 'tele_trap.bmp'), x, y, 'tele_trap')
+                item = Object(os.path.join(IMGDIR, 'tele_trap.bmp'), x, y, 'tele_trap')
                 trigger = Tile(x,y, False, 'teleport')
                 self.triggers.append(trigger)
                 self.items.append(item)
@@ -529,7 +530,7 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                breakable_wall = RLobject.Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
+                breakable_wall = Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
                 self.breakable.append(breakable_wall)
                 self.floors.pop(space)    
                     
@@ -538,7 +539,7 @@ class Map:
             space = random.randint(0, (len(self.floors) -1))
             x = self.floors[space].left
             y = self.floors[space].top
-            chest = RLobject.Object(os.path.join(IMGDIR,'chest.bmp'), x , y, 'chest')
+            chest = Object(os.path.join(IMGDIR,'chest.bmp'), x , y, 'chest')
             self.items.append(chest) 
             self.floors.pop(space)
             
@@ -546,7 +547,7 @@ class Map:
             space = random.randint(0, (len(self.floors) -1))
             x = self.floors[space].left
             y = self.floors[space].top
-            ring = RLobject.Object(os.path.join(IMGDIR,'ring.bmp'), x , y, 'whip_ring')
+            ring = Object(os.path.join(IMGDIR,'ring.bmp'), x , y, 'whip_ring')
             self.items.append(ring) 
             self.floors.pop(space)
              
@@ -556,28 +557,28 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                item = RLobject.Object(os.path.join(IMGDIR,'gem.bmp'), x, y, 'gem')
+                item = Object(os.path.join(IMGDIR,'gem.bmp'), x, y, 'gem')
                 self.items.append(item)
                 self.floors.pop(space)
             for c in range(73):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top    
-                item = RLobject.Object(os.path.join(IMGDIR,'whip.bmp'), x , y, 'whip')
+                item = Object(os.path.join(IMGDIR,'whip.bmp'), x , y, 'whip')
                 self.items.append(item)
                 self.floors.pop(space)
             for d in range(14):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                item = RLobject.Object(os.path.join(IMGDIR,'gold.bmp'), x , y, 'gold')
+                item = Object(os.path.join(IMGDIR,'gold.bmp'), x , y, 'gold')
                 self.items.append(item)
                 self.floors.pop(space)  
             for f in range(1000):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                breakable_wall = RLobject.Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
+                breakable_wall = Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
                 self.breakable.append(breakable_wall)
                 self.floors.pop(space)    
         
@@ -586,7 +587,7 @@ class Map:
             space = random.randint(0, (len(self.floors) -1))
             x = self.floors[space].left
             y = self.floors[space].top
-            chest = RLobject.Object(os.path.join(IMGDIR,'chest.bmp'), x , y, 'chest')
+            chest = Object(os.path.join(IMGDIR,'chest.bmp'), x , y, 'chest')
             self.items.append(chest) 
             self.floors.pop(space)
             #add a slow monsters
@@ -598,21 +599,21 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                mob = RLobject.Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y,1,'slow')
+                mob = Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y,1,'slow')
                 self.mobs.append(mob)
                 self.floors.pop(space)
             for b in range(73):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                item = RLobject.Object(os.path.join(IMGDIR,'gem.bmp'), x, y, 'gem')
+                item = Object(os.path.join(IMGDIR,'gem.bmp'), x, y, 'gem')
                 self.items.append(item)
                 self.floors.pop(space)
             for c in range(73):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top    
-                item = RLobject.Object(os.path.join(IMGDIR,'whip.bmp'), x , y, 'whip')
+                item = Object(os.path.join(IMGDIR,'whip.bmp'), x , y, 'whip')
                 self.items.append(item)
                 self.floors.pop(space)    
             
@@ -621,7 +622,7 @@ class Map:
             space = random.randint(0, (len(self.floors) -1))
             x = self.floors[space].left
             y = self.floors[space].top
-            chest = RLobject.Object(os.path.join(IMGDIR,'chest.bmp'), x , y, 'chest')
+            chest = Object(os.path.join(IMGDIR,'chest.bmp'), x , y, 'chest')
             self.items.append(chest) 
             self.floors.pop(space)
             #add a slow monsters
@@ -633,42 +634,42 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                mob = RLobject.Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y,1,'slow')
+                mob = Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y,1,'slow')
                 self.mobs.append(mob)
                 self.floors.pop(space)
             for a in range(241):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                mob = RLobject.Mob(os.path.join(IMGDIR,'elf_mummy.bmp'), x , y,2,'medium')
+                mob = Mob(os.path.join(IMGDIR,'elf_mummy.bmp'), x , y,2,'medium')
                 self.mobs.append(mob)
                 self.floors.pop(space)
             for a in range(241):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                mob = RLobject.Mob(os.path.join(IMGDIR,'ogre_lord.bmp'), x , y,3,'fast')
+                mob = Mob(os.path.join(IMGDIR,'ogre_lord.bmp'), x , y,3,'fast')
                 self.mobs.append(mob)
                 self.floors.pop(space)
             for b in range(73):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                item = RLobject.Object(os.path.join(IMGDIR,'gem.bmp'), x, y, 'gem')
+                item = Object(os.path.join(IMGDIR,'gem.bmp'), x, y, 'gem')
                 self.items.append(item)
                 self.floors.pop(space)
             for c in range(73):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top    
-                item = RLobject.Object(os.path.join(IMGDIR,'whip.bmp'), x , y, 'whip')
+                item = Object(os.path.join(IMGDIR,'whip.bmp'), x , y, 'whip')
                 self.items.append(item)
                 self.floors.pop(space)
             for d in range(140):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                breakable_wall = RLobject.Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
+                breakable_wall = Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
                 self.breakable.append(breakable_wall)
                 self.floors.pop(space)    
         
@@ -677,7 +678,7 @@ class Map:
             space = random.randint(0, (len(self.floors) -1))
             x = self.floors[space].left
             y = self.floors[space].top
-            chest = RLobject.Object(os.path.join(IMGDIR,'chest.bmp'), x , y, 'chest')
+            chest = Object(os.path.join(IMGDIR,'chest.bmp'), x , y, 'chest')
             self.items.append(chest) 
             self.floors.pop(space)
             #add a slow monsters
@@ -689,21 +690,21 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                mob = RLobject.Mob(os.path.join(IMGDIR,'elf_mummy.bmp'), x , y,2,'medium')
+                mob = Mob(os.path.join(IMGDIR,'elf_mummy.bmp'), x , y,2,'medium')
                 self.mobs.append(mob)
                 self.floors.pop(space)
             for b in range(73):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                item = RLobject.Object(os.path.join(IMGDIR,'gem.bmp'), x, y, 'gem')
+                item = Object(os.path.join(IMGDIR,'gem.bmp'), x, y, 'gem')
                 self.items.append(item)
                 self.floors.pop(space)
             for c in range(73):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top    
-                item = RLobject.Object(os.path.join(IMGDIR,'whip.bmp'), x , y, 'whip')
+                item = Object(os.path.join(IMGDIR,'whip.bmp'), x , y, 'whip')
                 self.items.append(item)
                 self.floors.pop(space)    
         
@@ -712,7 +713,7 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top    
-                item = RLobject.Object(os.path.join(IMGDIR, 'tele_trap.bmp'), x, y, 'tele_trap')
+                item = Object(os.path.join(IMGDIR, 'tele_trap.bmp'), x, y, 'tele_trap')
                 trigger = Tile(x,y, False, 'teleport')
                 self.triggers.append(trigger)
                 self.items.append(item)
@@ -721,21 +722,21 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                breakable_wall = RLobject.Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
+                breakable_wall = Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
                 self.breakable.append(breakable_wall)
                 self.floors.pop(space)
             for c in range(300):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                item = RLobject.Object(os.path.join(IMGDIR, 'invisibility.bmp'),x,y, 'invisibility')
+                item = Object(os.path.join(IMGDIR, 'invisibility.bmp'),x,y, 'invisibility')
                 self.items.append(item)
                 self.floors.pop(space)
             for d in range(150):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                mob = RLobject.Mob(os.path.join(IMGDIR,'ogre_lord.bmp'), x , y,3,'fast')
+                mob = Mob(os.path.join(IMGDIR,'ogre_lord.bmp'), x , y,3,'fast')
                 self.mobs.append(mob)
                 self.floors.pop(space)                    
         if self.level == 16:
@@ -743,28 +744,28 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top    
-                pit = RLobject.Object(os.path.join(IMGDIR,'pit.bmp'), x, y)
+                pit = Object(os.path.join(IMGDIR,'pit.bmp'), x, y)
                 self.pits.append(pit)
                 self.floors.pop(space)
             for b in range(400):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                breakable_wall = RLobject.Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
+                breakable_wall = Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
                 self.breakable.append(breakable_wall)
                 self.floors.pop(space)
             for c in range(241):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                mob = RLobject.Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y,1,'slow')
+                mob = Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y,1,'slow')
                 self.mobs.append(mob)
                 self.floors.pop(space)
             for d in range(140):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                item = RLobject.Object(os.path.join(IMGDIR,'gold.bmp'), x , y, 'gold')
+                item = Object(os.path.join(IMGDIR,'gold.bmp'), x , y, 'gold')
                 self.items.append(item)
                 self.floors.pop(space)  
         
@@ -773,21 +774,21 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                breakable_wall = RLobject.Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
+                breakable_wall = Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
                 self.breakable.append(breakable_wall)
                 self.floors.pop(space)  
             for b in range(200):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                item = RLobject.Object(os.path.join(IMGDIR,'sack.bmp'), x, y, 'more_monsters')
+                item = Object(os.path.join(IMGDIR,'sack.bmp'), x, y, 'more_monsters')
                 self.items.append(item)
                 self.floors.pop(space)    
             for c in range (10):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                item = RLobject.Object(os.path.join(IMGDIR,'sack.bmp'), x, y, 'gem_sack')
+                item = Object(os.path.join(IMGDIR,'sack.bmp'), x, y, 'gem_sack')
                 self.items.append(item)
                 self.floors.pop(space)    
                 

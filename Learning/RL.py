@@ -1,6 +1,6 @@
 import sys, os, math
 import pygame
-from RLobject import *
+#from RLobject import *
 from RLCONSTANTS import *
 import RLmap, RLinput
 from player import Player
@@ -165,7 +165,7 @@ while not game.game_over:
 
     RLmap.renderAll(game)
     game.checkState()
-    game.clock.tick(10)
+    game.clock.tick(50)
 
 
 
