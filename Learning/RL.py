@@ -3,6 +3,7 @@ import pygame
 from RLobject import *
 from RLCONSTANTS import *
 import RLmap, RLinput
+from player import Player
 import anim
 from pygame.locals import *
 
@@ -15,7 +16,7 @@ class Game:
         self.surface = pygame.display.set_mode((WWIDTH, WHEIGHT), 0, 32)
         pygame.display.set_caption('Zero Trunk Rot')
         self.player = Player(os.path.join(IMGDIR, 'player.bmp'), 0, 0)
-        self.level_map = RLmap.Map(1, self)
+        self.level_map = RLmap.Map(1, self) #int is level
         self.font = pygame.font.Font(os.path.join(RESDIR,'visitor1.ttf'),18)
         self.title_font = pygame.font.Font(os.path.join(RESDIR,'visitor1.ttf'),36)
         self.game_over = False
@@ -25,6 +26,13 @@ class Game:
     def setSounds(self):
         
         self.mob_hit_player = pygame.mixer.Sound(os.path.join(RESDIR, 'mobHitPlayer.wav'))
+        self.add_remove_walls = pygame.mixer.Sound(os.path.join(RESDIR, 'add_remove_walls.wav'))
+        self.bomb = pygame.mixer.Sound(os.path.join(RESDIR, 'bomb.wav'))
+        self.gold =  pygame.mixer.Sound(os.path.join(RESDIR, 'gold.wav'))
+        self.hit_wall =  pygame.mixer.Sound(os.path.join(RESDIR, 'hit_wall.wav'))
+        self.lava =  pygame.mixer.Sound(os.path.join(RESDIR, 'lava.wav'))
+        self.whip_breakable =  pygame.mixer.Sound(os.path.join(RESDIR, 'whip_breakable.wav'))
+        self.whipping =  pygame.mixer.Sound(os.path.join(RESDIR, 'whipping.wav'))
         self.currentVolume = 1.0
         self.musicPause = False
         pygame.mixer.music.set_volume(self.currentVolume)
@@ -70,7 +78,6 @@ class Game:
         return square_dist <= radius ** 2
     
     
-    
 
 
 
@@ -107,7 +114,8 @@ while not game.game_over:
                 game.player.move(0, IMGSIZE, game)
             if event.key == K_t:
                 if game.player.teleports > 0:
-                    game.player.teleport(game)
+                    game.player.teleports -= 1
+                    game.player.rect = game.player.teleport(game)
             if event.key == K_x:
                 game.player.keys += 10
                 game.player.teleports += 10
@@ -115,15 +123,14 @@ while not game.game_over:
                 game.player.gems += 10
             if event.key == K_m:
                 game.player.findMovingWalls(game)
-                game.changeTimer(lava, VERYSLOW)
-                #print(game.level_map.moveable_walls)   
+                game.changeTimer(lava, VERYSLOW)  
             if event.key == K_n:
                 game.level_map.level += 1
                 game.level_map.clearLevel()
-                RLmap.renderAll(game.font, game.surface, game.level_map, images, game.player)
+                RLmap.renderAll(game)
                 game.clock.tick(2)
                 game.level_map.makeMap(game)
-                RLmap.renderAll(game.font, game.surface, game.level_map, images, game.player)
+                RLmap.renderAll(game)
                 while not pygame.event.wait().type in (QUIT, KEYDOWN):
                     pass
             if event.key == K_SPACE:
@@ -133,27 +140,32 @@ while not game.game_over:
                 pygame.quit()
                 sys.exit()
 
-        #if event.type == USEREVENT+1:
-        if event.type == slow:
+
+        if event.type == slow: #USEREVENT+1
             for a in game.level_map.mobs:
-                a.move(game)
+                if a.speed == 'slow':
+                    a.move(game)
             for wall in game.level_map.moveable_walls:
                 if wall.moving == True:
                     wall.move(game)
-        '''if event.type == game.timers['move_walls']:
-            game.level_map.moveWalls(game)'''
-        if event.type == lava:
+        if event.type == medium: #USEREEVNT+2
+            for a in game.level_map.mobs:
+                if a.speed == 'medium':
+                    a.move(game)
+        if event.type == fast: #USEREVENT+3
+            for a in game.level_map.mobs:
+                if a.speed == 'fast':
+                    a.move(game)
+        if event.type == lava: #USEREVENT+4
             game.level_map.lavaFlow(game)
-        if event.type == check_things:
-            #game.changeTimer(slow, SLOW)
-            #game.changeTimer(check_things, OFF)
+        if event.type == check_things: #USEREVENT+5
             game.setTimers()
             game.player.invisible = False
 
 
-    RLmap.renderAll(game.font, game.surface, game.level_map, images, game.player)
+    RLmap.renderAll(game)
     game.checkState()
-    game.clock.tick(16)
+    game.clock.tick(10)
 
 
 

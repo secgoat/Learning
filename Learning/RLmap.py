@@ -35,30 +35,41 @@ class Tile():
             if self.kind == 'walls1':
                 walls = level_map.triggered_walls['7']
                 for wall in walls:
+                    game.add_remove_walls.play()
                     level_map.walls.append(wall)
                 level_map.panel.messages.append('The walls are closing in on you!')
             
             if self.kind == 'walls2':
                 walls = level_map.triggered_walls['8']
                 for wall in walls:
+                    game.add_remove_walls.play()
                     level_map.walls.append(wall)
                 level_map.panel.messages.append('The walls are closing in on you!')
             
             if self.kind == 'remove_walls':
                 walls = level_map.triggered_walls['Y']
                 for wall in walls:
+                    game.add_remove_walls.play()
                     game.level_map.breakable.remove(wall)
                 level_map.triggered_walls['Y'] = []
                 
             if self.kind == 'move_walls':
                 game.player.findMovingWalls(game)
-            
-            if self.kind == 'teleport':
-                game.player.teleport(game)
                 
             if self.kind == 'lava_flow':
                 game.changeTimer(lava, VERYSLOW)
                 
+            if self.kind == "invis_walls":
+                for a in range(100,200):
+                    space = random.choice(game.level_map.walls)
+                    game.level_map.walls.remove(space)
+                    game.level_map.hidden_walls.append(space)
+            if self.kind == 'earthquake':
+                for a in range(50,100):
+                    space = random.choice(game.level_map.floors)
+                    breakable_wall = RLobject.Object(os.path.join(IMGDIR,'breakable.bmp'), space.left,space.top)
+                    game.level_map.breakable.append(breakable_wall)
+            
             self.triggered = True
         else:
             return
@@ -66,7 +77,7 @@ class Tile():
 class Map:
     def __init__(self, level, game):
         self.level = level
-        self.level_map = []
+        self.map_of_level = []
         self.panel = RLpanel.Panel()
         self.floors = []
         self.triggers = []
@@ -165,202 +176,212 @@ class Map:
         if self.level % 2 == 1 or self.level == 20: #This checks to see if the level is odd, or the last level to load map otherwise random level 
             f = open(os.path.join(LVLDIR,'lvl{}.txt').format(self.level),'r')
             lines = f.readlines()
-            self.level_map = lines
+            self.map_of_level = lines
         
         else:    #this is where we read in the blank map, pass it to populate level then continue with the makemap
             f = open(os.path.join(LVLDIR, 'level.txt'),'r')
             lines = f.readlines()
-            self.level_map = lines
+            self.map_of_level = lines
             self.populateLevel(game)
             
         
         walls = ['#', '7', '8', 'X', 'Y', 'D', 'R', 'M','L','V','=', '/' ]
         
-        for a in range(len(self.level_map)):
-            for b in range(len(self.level_map[a])):
+        for a in range(len(self.map_of_level)):
+            for b in range(len(self.map_of_level[a])):
                 y = a * IMGSIZE
                 x = b * IMGSIZE
 #---------------Walls, floors etc-----------------------------------------------------------------------------                
 
-                if self.level_map[a][b] not in walls:
+                if self.map_of_level[a][b] not in walls:
                     self.floors.append(pygame.Rect(x,y,IMGSIZE,IMGSIZE))
                     
-                if self.level_map[a][b] == '#' or self.level_map[a][b] == '6' or self.level_map[a][b] == 'R':  
+                if self.map_of_level[a][b] == '#' or self.map_of_level[a][b] == '6' or self.map_of_level[a][b] == 'R':  
                     self.walls.append(pygame.Rect(x,y,IMGSIZE,IMGSIZE))
                 
-                if self.level_map[a][b] == 'X':
+                if self.map_of_level[a][b] == 'X':
                     breakable_wall = RLobject.Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
                     self.breakable.append(breakable_wall)
-                if self.level_map[a][b] == 'Y':
+                if self.map_of_level[a][b] == 'Y':
                     breakable_wall =  RLobject.Object(os.path.join(IMGDIR,'breakable.bmp'), x, y)
                     self.triggered_walls['Y'].append(breakable_wall.rect)
                     self.breakable.append(breakable_wall)
                
-                if self.level_map[a][b] == 'M':
+                if self.map_of_level[a][b] == 'M':
                     moveable_wall = RLobject.MobTile(os.path.join(IMGDIR, 'breakable.bmp'), x, y)
                     self.breakable.append(moveable_wall)
                     self.moveable_walls.append(moveable_wall)
                         
-                if self.level_map[a][b] == 'D':
+                if self.map_of_level[a][b] == 'D':
                     door = RLobject.Door(os.path.join(IMGDIR,'door.bmp'), x, y)
                     self.doors.append(door)
                 
-                if self.level_map[a][b] == ':':
+                if self.map_of_level[a][b] == ':':
                     self.hidden_walls.append(pygame.Rect(x,y,IMGSIZE,IMGSIZE))
                 
-                if self.level_map[a][b] == '7':
+                if self.map_of_level[a][b] == '7':
                     wall = pygame.Rect(x,y,IMGSIZE,IMGSIZE)
                     self.triggered_walls['7'].append(wall) # uses a dictionary with a list as the value to keep track off all walls to be triggered
                 
-                if self.level_map[a][b] == '8':
+                if self.map_of_level[a][b] == '8':
                     wall = pygame.Rect(x,y,IMGSIZE,IMGSIZE)
                     self.triggered_walls['8'].append(wall)
                 
-                if self.level_map[a][b] == 'L':
+                if self.map_of_level[a][b] == 'L':
                     self.exits.append(pygame.Rect(x,y,IMGSIZE,IMGSIZE))
 
-                if self.level_map[a][b] == 'V':
+                if self.map_of_level[a][b] == 'V':
                     lava = RLobject.Object(os.path.join(IMGDIR,'lava.bmp'), x, y)
                     self.lava.append(lava)
-                if self.level_map[a][b] == '=':
+                if self.map_of_level[a][b] == '=':
                     pit = RLobject.Object(os.path.join(IMGDIR,'pit.bmp'), x, y)
                     self.pits.append(pit)
-                if self.level_map[a][b] == 'R':
+                if self.map_of_level[a][b] == 'R':
                     water = pygame.Rect(x,y,IMGSIZE,IMGSIZE)
                     self.water.append(water)
-                if self.level_map[a][b] == '/':
+                if self.map_of_level[a][b] == '/':
                     tree_wall = RLobject.Object(os.path.join(IMGDIR,'tree.bmp'), x, y)
                     self.breakable.append(tree_wall)
                 
 #----------------Player------------------------------------------------------------------------------------------                
-                if self.level_map[a][b] == 'P':
+                if self.map_of_level[a][b] == 'P':
                     game.player.rect.top = y
                     game.player.rect.left = x
                     
 #-----------------MOBS-------------------------------------------------------------------------------                
-                if self.level_map[a][b] == '1':
-                    mob = RLobject.Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y)
+                if self.map_of_level[a][b] == '1':
+                    mob = RLobject.Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y, 1, 'slow')
                     self.mobs.append(mob)
                 
-                if self.level_map[a][b] == '2':
-                    mob = RLobject.Mob(os.path.join(IMGDIR,'elf_mummy.bmp'), x , y)
+                if self.map_of_level[a][b] == '2':
+                    mob = RLobject.Mob(os.path.join(IMGDIR,'elf_mummy.bmp'), x , y, 2, 'medium')
                     self.mobs.append(mob)
                 
-                if self.level_map[a][b] == '3':
-                    mob = RLobject.Mob(os.path.join(IMGDIR,'ogre_lord.bmp'), x , y)
+                if self.map_of_level[a][b] == '3':
+                    mob = RLobject.Mob(os.path.join(IMGDIR,'ogre_lord.bmp'), x , y, 3, 'fast')
                     self.mobs.append(mob)
                 
-                if self.level_map[a][b] == '4':
-                    mob = RLobject.Mob(os.path.join(IMGDIR,'umber_hulk.bmp'), x , y)
+                if self.map_of_level[a][b] == '4':
+                    mob = RLobject.Mob(os.path.join(IMGDIR,'umber_hulk.bmp'), x , y, 3, 'fast')
                     self.mobs.append(mob)
 #---------------Items-----------------------------------------------------------------                
-                if self.level_map[a][b] == '+':
+                if self.map_of_level[a][b] == '+':
                     item = RLobject.Object(os.path.join(IMGDIR,'gem.bmp'), x, y, 'gem')
                     self.items.append(item)
                 
-                if self.level_map[a][b] == 'W':
+                if self.map_of_level[a][b] == 'W':
                     item = RLobject.Object(os.path.join(IMGDIR,'whip.bmp'), x , y, 'whip')
                     self.items.append(item)
                 
-                if self.level_map[a][b] == 'T':
+                if self.map_of_level[a][b] == 'T':
                     item = RLobject.Object(os.path.join(IMGDIR,'teleport.bmp'), x , y, 'teleport')
                     self.items.append(item)
                 
-                if self.level_map[a][b] == 'K':
+                if self.map_of_level[a][b] == 'K':
                     item = RLobject.Object(os.path.join(IMGDIR,'key.bmp'), x , y, 'key')
                     self.items.append(item)
                 
-                if self.level_map[a][b] == '*':
+                if self.map_of_level[a][b] == '*':
                     item = RLobject.Object(os.path.join(IMGDIR,'gold.bmp'), x , y, 'gold')
                     self.items.append(item)
                 
-                if self.level_map[a][b] == 'C':
+                if self.map_of_level[a][b] == 'C':
                     item = RLobject.Object(os.path.join(IMGDIR,'chest.bmp'), x , y, 'chest')
                     self.items.append(item)
 
-                if self.level_map[a][b] == 'Q':
+                if self.map_of_level[a][b] == 'Q':
                     item = RLobject.Object(os.path.join(IMGDIR,'ring.bmp'),x,y,'whip_ring')
                     self.items.append(item)
                     
-                if self.level_map[a][b] == '?':
+                if self.map_of_level[a][b] == '?':
                     item = RLobject.Object(os.path.join(IMGDIR, 'sack.bmp'),x,y, 'gem_sack')
                     self.items.append(item)
                     
-                if self.level_map[a][b] == 'B':
+                if self.map_of_level[a][b] == 'B':
                     item = RLobject.Object(os.path.join(IMGDIR, 'bomb.bmp'),x,y, 'bomb')
                     self.items.append(item)
                     
-                if self.level_map[a][b] == 'I':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'invisibility.bmp'),x,y, 'invisibility')
-                    self.items.append(item)
-                    
-                if self.level_map[a][b] == 'Z':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'freeze_monster.bmp'),x,y, 'freeze')
-                    self.items.append(item)
-                    
-                if self.level_map[a][b] == 'S':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'slow_monster.bmp'),x,y, 'slow')
-                    self.items.append(item)
-                   
-                if self.level_map[a][b] == 'F':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'fast_monster.bmp'),x,y, 'fast')
-                    self.items.append(item)
-                   
-                if self.level_map[a][b] == ']':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'sack.bmp'),x,y, 'more_monsters')
-                    self.items.append(item)
-                    
-                if self.level_map[a][b] == '%':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'zap_monster.bmp'),x,y, 'zap')
-                    self.items.append(item)
-                    
-                if self.level_map[a][b] == '!':
+                if self.map_of_level[a][b] == '!':
                     item = RLobject.Tablet(os.path.join(IMGDIR, 'tablet.bmp'),x,y, self.level)
                     self.items.append(item)
                     
+#----------------SPELLS----------------------------------------------------------------------                    
+                if self.map_of_level[a][b] == 'I':
+                    item = RLobject.Object(os.path.join(IMGDIR, 'invisibility.bmp'),x,y, 'invisibility')
+                    self.items.append(item)
+                    
+                if self.map_of_level[a][b] == 'Z':
+                    item = RLobject.Object(os.path.join(IMGDIR, 'freeze_monster.bmp'),x,y, 'freeze')
+                    self.items.append(item)
+                    
+                if self.map_of_level[a][b] == 'S':
+                    item = RLobject.Object(os.path.join(IMGDIR, 'slow_monster.bmp'),x,y, 'slow')
+                    self.items.append(item)
+                   
+                if self.map_of_level[a][b] == 'F':
+                    item = RLobject.Object(os.path.join(IMGDIR, 'fast_monster.bmp'),x,y, 'fast')
+                    self.items.append(item)
+                   
+                if self.map_of_level[a][b] == ']':
+                    item = RLobject.Object(os.path.join(IMGDIR, 'sack.bmp'),x,y, 'more_monsters')
+                    self.items.append(item)
+                    
+                if self.map_of_level[a][b] == '%':
+                    item = RLobject.Object(os.path.join(IMGDIR, 'zap_monster.bmp'),x,y, 'zap')
+                    self.items.append(item)
+                    
+                if self.map_of_level[a][b] == '.':
+                    item = RLobject.Object(os.path.join(IMGDIR, 'tele_trap.bmp'), x, y, 'tele_trap')
+                    self.items.append(item)
+                    
+               
+                    
 #---------------Map Triggers-------------------------------------------------------------                    
-                if self.level_map[a][b] == 'H':
+                if self.map_of_level[a][b] == 'H':
                     trigger = Tile(x, y, False, 'gems')
                     self.triggers.append(trigger)
                 
-                if self.level_map[a][b] == '`':
+                if self.map_of_level[a][b] == '`':
                     trigger = Tile(x, y, False, 'walls1') #reveal hidden walls labeled as 7 on map
                     self.triggers.append(trigger)
                 
-                if self.level_map[a][b] == ',':
+                if self.map_of_level[a][b] == ',':
                     trigger = Tile(x, y, False, 'walls2') #reveal hidden walls labeled as 8 on map.
                     self.triggers.append(trigger)
-                if self.level_map[a][b] == '~':
+                if self.map_of_level[a][b] == '~':
                     trigger = Tile(x, y, False, 'remove_walls')
                     self.triggers.append(trigger)
                 
-                if self.level_map[a][b] == '.':
-                    item = RLobject.Object(os.path.join(IMGDIR, 'tele_trap.bmp'), x, y, 'tele_trap')
-                    trigger = Tile(x,y, False, 'teleport')
-                    self.triggers.append(trigger)
-                    self.items.append(item)
-                if self.level_map[a][b] == 'A':
+                if self.map_of_level[a][b] == 'A':
                     trigger = Tile(x,y, False, 'move_walls')
                     self.triggers.append(trigger)
-                if self.level_map[a][b] == '9':
+                if self.map_of_level[a][b] == '9':
                     trigger = Tile(x,y, False, "lava_flow")
+                    self.triggers.append(trigger)
+                 
+                if self.map_of_level[a][b] == 'N':
+                    trigger = Tile(x,y,False,'invis_walls')
+                    self.triggers.append(trigger)
+                    
+                if self.map_of_level[a][b] == 'E':
+                    trigger = Tile(x,y,False,'earthquake')
                     self.triggers.append(trigger)
                 
                     
 #---------------KROZ Letters------------------------------------------------------------------------------------------
-                if self.level_map[a][b] == '<':
+                if self.map_of_level[a][b] == '<':
                     item = RLobject.Object(os.path.join(IMGDIR, 'k.bmp'),x,y, 'k')
                     self.items.append(item)
                     #self.triggers.append(item)
-                if self.level_map[a][b] == '[':
+                if self.map_of_level[a][b] == '[':
                     item = RLobject.Object(os.path.join(IMGDIR, 'r.bmp'),x,y, 'r')
                     self.items.append(item)
                     #self.triggers.append(item)
-                if self.level_map[a][b] == '|':
+                if self.map_of_level[a][b] == '|':
                     item = RLobject.Object(os.path.join(IMGDIR, 'o.bmp'),x,y, 'o')
                     self.items.append(item)
                     #self.triggers.append(item)
-                if self.level_map[a][b] == '"':
+                if self.map_of_level[a][b] == '"':
                     item = RLobject.Object(os.path.join(IMGDIR, 'z.bmp'),x,y, 'z')
                     self.items.append(item)
                     #self.triggers.append(item)
@@ -374,11 +395,11 @@ class Map:
             exit
             player start
         '''
-        for a in range(len(self.level_map)):
-            for b in range(len(self.level_map[a])):
+        for a in range(len(self.map_of_level)):
+            for b in range(len(self.map_of_level[a])):
                 y = a * IMGSIZE
                 x = b * IMGSIZE
-                if self.level_map[a][b] == ' ':
+                if self.map_of_level[a][b] == ' ':
                     self.floors.append(pygame.Rect(x,y,IMGSIZE,IMGSIZE))
                     
         
@@ -413,7 +434,7 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                mob = RLobject.Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y)
+                mob = RLobject.Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y,1,'slow')
                 self.mobs.append(mob)
                 self.floors.pop(space)
             for b in range(73):
@@ -471,7 +492,7 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                mob = RLobject.Mob(os.path.join(IMGDIR,'elf_mummy.bmp'), x , y)
+                mob = RLobject.Mob(os.path.join(IMGDIR,'elf_mummy.bmp'), x , y,2,'medium')
                 self.mobs.append(mob)
                 self.floors.pop(space)
             for b in range(73):
@@ -577,7 +598,7 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                mob = RLobject.Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y)
+                mob = RLobject.Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y,1,'slow')
                 self.mobs.append(mob)
                 self.floors.pop(space)
             for b in range(73):
@@ -612,21 +633,21 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                mob = RLobject.Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y)
+                mob = RLobject.Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y,1,'slow')
                 self.mobs.append(mob)
                 self.floors.pop(space)
             for a in range(241):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                mob = RLobject.Mob(os.path.join(IMGDIR,'elf_mummy.bmp'), x , y)
+                mob = RLobject.Mob(os.path.join(IMGDIR,'elf_mummy.bmp'), x , y,2,'medium')
                 self.mobs.append(mob)
                 self.floors.pop(space)
             for a in range(241):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                mob = RLobject.Mob(os.path.join(IMGDIR,'ogre_lord.bmp'), x , y)
+                mob = RLobject.Mob(os.path.join(IMGDIR,'ogre_lord.bmp'), x , y,3,'fast')
                 self.mobs.append(mob)
                 self.floors.pop(space)
             for b in range(73):
@@ -668,7 +689,7 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                mob = RLobject.Mob(os.path.join(IMGDIR,'elf_mummy.bmp'), x , y)
+                mob = RLobject.Mob(os.path.join(IMGDIR,'elf_mummy.bmp'), x , y,2,'medium')
                 self.mobs.append(mob)
                 self.floors.pop(space)
             for b in range(73):
@@ -714,7 +735,7 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                mob = RLobject.Mob(os.path.join(IMGDIR,'ogre_lord.bmp'), x , y)
+                mob = RLobject.Mob(os.path.join(IMGDIR,'ogre_lord.bmp'), x , y,3,'fast')
                 self.mobs.append(mob)
                 self.floors.pop(space)                    
         if self.level == 16:
@@ -736,7 +757,7 @@ class Map:
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
-                mob = RLobject.Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y)
+                mob = RLobject.Mob(os.path.join(IMGDIR,'gnome.bmp'), x , y,1,'slow')
                 self.mobs.append(mob)
                 self.floors.pop(space)
             for d in range(140):
@@ -760,50 +781,50 @@ class Map:
                 x = self.floors[space].left
                 y = self.floors[space].top
                 item = RLobject.Object(os.path.join(IMGDIR,'sack.bmp'), x, y, 'more_monsters')
-                self.breakable.append(item)
+                self.items.append(item)
                 self.floors.pop(space)    
             for c in range (10):
                 space = random.randint(0, (len(self.floors) -1))
                 x = self.floors[space].left
                 y = self.floors[space].top
                 item = RLobject.Object(os.path.join(IMGDIR,'sack.bmp'), x, y, 'gem_sack')
-                self.breakable.append(item)
+                self.items.append(item)
                 self.floors.pop(space)    
                 
-def renderAll(font, surface, testMap, images, player):
-    surface.fill((0,0,0))
+def renderAll(game):
+    game.surface.fill((0,0,0))
 
-    testMap.panel.update(player, font, testMap)
+    game.level_map.panel.update(game.player, game.font, game.level_map)
     
-    for a in range(len(testMap.level_map)):
-        for b in range(len(testMap.level_map[a])):
+    for a in range(len(game.level_map.map_of_level)):
+        for b in range(len(game.level_map.map_of_level[a])):
             y = a * IMGSIZE # this sets the x and y coords by the number of pixels the image is, 16 ,32 etc.
             x = b * IMGSIZE
-            surface.blit(images['floor'], (x,y))
+            game.surface.blit(images['floor'], (x,y))
                 
     #draw all objects in the lists
-    for wall in testMap.walls:
-        surface.blit(images['wall'], wall)
-    for water in testMap.water:
-        surface.blit(images['water'], water)
-    for exit in testMap.exits:
-        surface.blit(images['stairs'], exit)
-    for object in testMap.items:
-        object.draw(surface)
-    for mob in testMap.mobs:
-        mob.draw(surface)
-    for door in testMap.doors:
-        door.draw(surface)
-    for breakable_wall in testMap.breakable:
-        breakable_wall.draw(surface)
-    for lava in testMap.lava:
-        lava.draw(surface)
-    for pit in testMap.pits:
-        pit.draw(surface)
-    if player.invisible == False: #only draw they player if they are not invisible
-        player.draw(surface)
-    if player.whipping == True:
-        player.whip(surface, testMap)
+    for wall in game.level_map.walls:
+        game.surface.blit(images['wall'], wall)
+    for water in game.level_map.water:
+        game.surface.blit(images['water'], water)
+    for stairs in game.level_map.exits:
+        game.surface.blit(images['stairs'], stairs)
+    for item in game.level_map.items:
+        item.draw(game.surface)
+    for mob in game.level_map.mobs:
+        mob.draw(game.surface)
+    for door in game.level_map.doors:
+        door.draw(game.surface)
+    for breakable_wall in game.level_map.breakable:
+        breakable_wall.draw(game.surface)
+    for lava in game.level_map.lava:
+        lava.draw(game.surface)
+    for pit in game.level_map.pits:
+        pit.draw(game.surface)
+    if game.player.invisible == False: #only draw they player if they are not invisible
+        game.player.draw(game.surface)
+    if game.player.whipping == True:
+        game.player.whip(game)
         
         
     pygame.display.update() 

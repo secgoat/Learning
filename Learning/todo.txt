@@ -1,10 +1,8 @@
  BUG FIX:
   1. when breakign a breakable wall that is also a removable wall, make sure to remove it from the removable wall list or game
   will crash when trying to remove walls
+ 
   
-  teleport putting player in walls, check floor spaces, especially on random levels
-  
-  set up triggers for moving walls
   
   File "C:\Users\jtilson\Documents\projects\Kroz\Learning\RLobject.py", line 121, in checkDistance
    distance = abs(math.sqrt(math.pow((player.rect.centerx - self.rect.centerx),2) + math.pow((player.rect.centery - self.rect.centery),2))) / IMGSIZE
@@ -13,25 +11,28 @@
   
 
 TODO:
+
+  verify all pieces are set up in the game, play thourgh kroz and see 
+  
+  
+ seperate move and checkcollision for mobs, like player.py so that when a generate 
+ monster spell goes off the do not appear in walls etc 
  
  2. Make mobs less sensitive to player, only move when in same room, or on trigger spaces
-
- verify all pieces are set up in the game, play thourgh kroz and see 
 
  statues: cause drains life when standing next to it, hard to break, what is the symbol in the maps?
  
  level 13: secret tunnels and monster generator
+           ; = hidden breakable wall
+           ` = hidden door
  
- level 17 Bubble creatuires - 3 gems no movement?
+ level 15: NUMBERS 4-8 are removable walls, need to code thems 
  
- levwel 20: super fast creature - 5 gems
+ level 17 Bubble creatuires - 3 gems movement after a certain time in room? or after killing some?
+          also some of the 4-8 removable walls
  
- 14. figure out the differences between mobs, so far i have 3 timers set up, need to at least make them move at different speeds
-  lvl1 Mob (A): slower, 1 gem per hit, more view distance
-  lvl2 mob (O): faster? 2 gems, lower view distance
-  lvl3 Mob (U): faster, 1 gems
-  lvl4 Mob ( spade):fast 3 gems
-
+ level 20: super fast creature - 5 gems
+ 
 
  16. sound
   -whip
@@ -75,7 +76,7 @@ CLEANUP:
   -destroy all items / breakables in radius (doublecheck)
   -animation 
   
- 12. ancient tablets (nned to get the random levels dons so these pan out right)
+ 12. ancient tablets (need to get the random levels dons so these pan out right)
    'You found an ancient Tablet with writing on it...huge points!');
    1: Flash(6,25,'Remember to experiment with every new object on a level.');
    3: Flash(5,25,'Only use your valuable Teleports for last chance escapes!');
@@ -99,6 +100,12 @@ CLEANUP:
  	14 teleport traps, inviisbilty, breakable walls some lvl3 mobs, a couple question marks
  	16 pits, breakable walls, gold nuggets, lvl1 mobs
  	18 breakable walls, question marks
+ 	
+ 14. figure out the differences between mobs, so far i have 3 timers set up, need to at least make them move at different speeds
+  lvl1 Mob (A): slower, 1 gem per hit, more view distance
+  lvl2 mob (O): faster? 2 gems, lower view distance
+  lvl3 Mob (U): faster, 1 gems
+  lvl4 Mob ( spade):fast 3 gems
  		
 
  

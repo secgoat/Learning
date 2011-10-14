@@ -54,6 +54,3 @@ breakableWall = pygame.image.load(os.path.join(IMGDIR,'breakable.bmp')).convert_
 stairsImage = pygame.image.load(os.path.join(IMGDIR,'stairs.bmp')).convert_alpha()
 waterImage = pygame.image.load(os.path.join(IMGDIR,'water.bmp')).convert_alpha()
 images = {'wall':wallImage, 'floor':floorImage, 'water':waterImage, 'breakable':breakableWall, 'stairs':stairsImage, 'water':waterImage}
-
-
-   

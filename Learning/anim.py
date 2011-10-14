@@ -80,9 +80,18 @@ def displayInstructions(game):
     #maxwidth = max([s.get_width() for s in surfaces])
     #result = pygame.Surface((maxwidth, len(lines)*font_height), pygame.SRCALPHA)
     while True:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+                if event.key == K_RETURN or K_SPACE:
+                    intro(game)
         for i in range(len(lines)):
             game.surface.blit(surfaces[i], (100,i*font_height))
-            
         pygame.display.update()
     
 def pitFall(game):
